@@ -26,9 +26,9 @@
                             <div class="input-group">
                                 <input type="text" id="codigo" placeholder="986050" required>
                                 <span class="separator">-</span>
-                                <input type="text" id="verificador" maxlength="1" placeholder="5" required style="width: 50px;">
+                                <input type="text" id="verificador" maxlength="1" placeholder="v" required style="width: 50px;">
                             </div>
-                            <span class="helper-text">Ej: 986050 - 5</span>
+                            <span class="helper-text">Ej: 986050-v</span>
                         </div>
                         <button type="submit" class="submit-btn">
                             Ingresar

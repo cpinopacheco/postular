@@ -4,7 +4,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Inscripción</title>
+    <title>Postular</title>
     <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="/public/css/postular.css">
 </head>
@@ -30,7 +30,7 @@
                             </div>
                             <div class="form-row">
                                 <label>Código:</label>
-                                <span class="form-value">986050 (ejemplo)</span>
+                                <span class="form-value">986050v (ejemplo)</span>
                             </div>
                             <div class="form-row">
                                 <label>Grado:</label>

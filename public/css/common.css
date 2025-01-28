@@ -47,7 +47,7 @@ body {
 
 .container {
   width: 100%;
-  max-width: 1100px;
+  max-width: 1000px;
   animation: fadeIn 0.8s ease-in;
 }
 

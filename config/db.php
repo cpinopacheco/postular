@@ -28,7 +28,7 @@ class Database
 
         try {
             $this->conn = new PDO(
-                "pgsql:host=" . $_ENV['DB_HOST'] . ";dbname=" . $_ENV['DB_NAME'],
+                "pgsql:host=" . $_ENV['DB_HOST'] . ";port=" . ($_ENV['DB_PORT'] ?? 5432) . ";dbname=" . $_ENV['DB_NAME'],
                 $_ENV['DB_USERNAME'],
                 $_ENV['DB_PASSWORD']
             );

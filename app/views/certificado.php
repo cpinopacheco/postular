@@ -16,7 +16,7 @@
                 <header class="header">
                     <img src="/public/images/cenpecar-logo.png" alt="Logo Institucional" class="logo">
                     <div class="header-text">
-                        DOCUMENTO QUE CERTIFICA LA INSCRIPCIÓN COMO ALUMNO EN EL NIVEL DE PERFECCIONAMIENTO CORRESPONDIENTE A SU GRADO PARA EL PROCESO 2024.
+                        DOCUMENTO QUE CERTIFICA LA INSCRIPCIÓN COMO ALUMNO EN EL NIVEL DE PERFECCIONAMIENTO CORRESPONDIENTE A SU GRADO PARA EL PROCESO <?php echo date('Y'); ?>.
                     </div>
                 </header>
 

@@ -24,9 +24,9 @@
                         <div class="form-group">
                             <label for="codigo">CÓDIGO FUNCIONARIO</label>
                             <div class="input-group">
-                                <input type="text" id="codigo" placeholder="986050" required>
+                                <input type="text" id="codigo" placeholder="986050" required maxlength="6" pattern="\d{6}" oninput="this.value = this.value.replace(/[^0-9]/g, '');">
                                 <span class="separator">-</span>
-                                <input type="text" id="verificador" maxlength="1" placeholder="v" required style="width: 50px;">
+                                <input type="text" id="verificador" maxlength="1" placeholder="v" required style="width: 50px;" pattern="[a-zA-Z]" oninput="this.value = this.value.replace(/[^a-zA-Z]/g, '');">
                             </div>
                             <span class="helper-text">Ej: 986050-v</span>
                         </div>

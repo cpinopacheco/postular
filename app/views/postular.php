@@ -24,29 +24,38 @@
 
                     <form>
                         <div class="rows-container">
-                            <div class="form-row">
-                                <label>Nombre:</label>
-                                <span class="form-value">Juan Pérez (ejemplo)</span>
+                            <!-- Datos Informativos (Read Only) con diseño limpio -->
+                            <div class="info-grid">
+                                <div class="readonly-field-group">
+                                    <span class="readonly-label">Nombre del Funcionario</span>
+                                    <span class="readonly-value">Juan Pérez (ejemplo)</span>
+                                </div>
+                                <div class="readonly-field-group">
+                                    <span class="readonly-label">Código</span>
+                                    <span class="readonly-value">986050v (ejemplo)</span>
+                                </div>
+                                <div class="readonly-field-group">
+                                    <span class="readonly-label">Grado Actual</span>
+                                    <span class="readonly-value">Primer Grado (ejemplo)</span>
+                                </div>
                             </div>
-                            <div class="form-row">
-                                <label>Código:</label>
-                                <span class="form-value">986050v (ejemplo)</span>
+
+                            <hr style="border: 0; border-top: 1px solid #eee; margin: 1.5rem 0;">
+
+                            <!-- Campos Editables con Floating Labels -->
+                            <div class="floating-input-group">
+                                <input type="email" id="email-inst" required placeholder=" " class="floating-input">
+                                <label for="email-inst" class="floating-label">Correo Institucional</label>
                             </div>
-                            <div class="form-row">
-                                <label>Grado:</label>
-                                <span class="form-value">Primer Grado (ejemplo)</span>
+
+                            <div class="floating-input-group">
+                                <input type="email" id="email-pers" required placeholder=" " class="floating-input">
+                                <label for="email-pers" class="floating-label">Email Personal</label>
                             </div>
-                            <div class="form-row">
-                                <label>Correo Institucional:</label>
-                                <input type="email" required>
-                            </div>
-                            <div class="form-row">
-                                <label>Email Personal:</label>
-                                <input type="email" required>
-                            </div>
-                            <div class="form-row">
-                                <label>Teléfono IP dotación:</label>
-                                <input type="tel" required>
+
+                            <div class="floating-input-group">
+                                <input type="tel" id="tel-ip" required placeholder=" " class="floating-input">
+                                <label for="tel-ip" class="floating-label">Teléfono IP dotación</label>
                             </div>
                         </div>
                         <div class="obligations-container">
@@ -63,17 +72,29 @@
                             <p>Ante duda o consulta, llamar a los IP: 21480, 21491, 21494 o en su defecto escribir al correo <a href="mailto:seccion.perfeccionamiento@gmail.com">seccion.perfeccionamiento@gmail.com</a>, de este Centro Nacional de Perfeccionamiento y Capacitación.</p>
                             <strong>Nota:</strong> El punto 3 debería actualizarse al año actual si corresponde.
                         </div>
-                        <div class="radio-group">
-                            <label>Acepto las obligaciones como alumno</label>
+                        <div class="radio-group modern-radio-group">
+                            <span class="group-label">Confirmación de obligaciones</span>
                             <div class="radio-options">
-                                <label class="radio-label">
-                                    <input type="radio" name="acepto" value="si" required>
-                                    Sí
-                                </label>
-                                <label class="radio-label">
-                                    <input type="radio" name="acepto" value="no" required>
-                                    No
-                                </label>
+                                <div class="radio-option">
+                                    <input type="radio" name="acepto" id="option-yes" value="si" required>
+                                    <label class="radio-card" for="option-yes">
+                                        <div class="card-content">
+                                            <span class="icon">✅</span>
+                                            <span class="text">Sí, acepto las obligaciones</span>
+                                        </div>
+                                        <div class="selection-indicator"></div>
+                                    </label>
+                                </div>
+                                <div class="radio-option">
+                                    <input type="radio" name="acepto" id="option-no" value="no" required>
+                                    <label class="radio-card" for="option-no">
+                                        <div class="card-content">
+                                            <span class="icon">❌</span>
+                                            <span class="text">No acepto</span>
+                                        </div>
+                                        <div class="selection-indicator"></div>
+                                    </label>
+                                </div>
                             </div>
                         </div>
 

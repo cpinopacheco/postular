@@ -19,26 +19,34 @@
 
             <main class="main-content">
                 <section class="login-section">
-                    <h3>INGRESE SUS DATOS</h3>
+                    <h3>Bienvenido</h3>
                     <form class="login-form">
                         <div class="form-group">
-                            <label for="codigo">CÓDIGO FUNCIONARIO</label>
-                            <div class="input-group">
-                                <input type="text" id="codigo" placeholder="986050" required maxlength="6" pattern="\d{6}" oninput="this.value = this.value.replace(/[^0-9]/g, '');">
+                            <label for="codigo">Código de Funcionario</label>
+                            
+                            <div class="login-input-container">
+                                <div class="floating-input-group" style="flex: 1;">
+                                    <input type="text" id="codigo" placeholder=" " required maxlength="6" pattern="\d{6}" class="floating-input" oninput="this.value = this.value.replace(/[^0-9]/g, '');">
+                                    <label for="codigo" class="floating-label">Número</label>
+                                </div>
+                                
                                 <span class="separator">-</span>
-                                <input type="text" id="verificador" maxlength="1" placeholder="v" required style="width: 50px;" pattern="[a-zA-Z]" oninput="this.value = this.value.replace(/[^a-zA-Z]/g, '');">
+                                
+                                <div class="floating-input-group" style="width: 80px;">
+                                    <input type="text" id="verificador" placeholder=" " required maxlength="1" pattern="[a-zA-Z0-9]" class="floating-input" style="text-align: center;" oninput="this.value = this.value.replace(/[^a-zA-Z0-9]/g, '');">
+                                    <label for="verificador" class="floating-label" style="left: 50%; transform: translateX(-50%);">DV</label>
+                                </div>
                             </div>
-                            <span class="helper-text">Ej: 986050-v</span>
                         </div>
                         <button type="submit" class="submit-btn">
-                            Ingresar
+                            Ingresar al Sistema
                         </button>
                     </form>
                 </section>
 
                 <section class="info-section">
-                    <h3>PROCESO DE INSCRIPCIÓN DE LOS NIVELES DE PERFECCIONAMIENTOS</h3>
-                    <p>PARA PERSONAL DE NOMBRAMIENTO SUPREMO Y PERSONAL DE NOMBRAMIENTO INSTITUCIONAL</p>
+                    <h3>Proceso de Inscripción de Niveles de Perfeccionamiento</h3>
+                    <p>Orientado al Personal de Nombramiento Supremo y Personal de Nombramiento Institucional.</p>
 
                     <div class="contact-info">
                         <h4>PARA RESOLVER DUDAS O CONSULTAS, COMUNÍQUESE A LOS SIGUIENTES NÚMEROS IP:</h4>

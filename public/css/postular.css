@@ -1,196 +1,87 @@
 @import url("common.css");
 
-.obligations-container {
-  margin-top: 2rem;
-  background: var(--light-green);
-  padding: 1.5rem 2.5rem;
-  border-radius: 8px;
-  border: 1px solid rgba(0, 92, 47, 0.1);
-}
-
-.obligations-container > p {
-  margin-bottom: 1rem;
-}
-
-.main-content {
-  padding: 1rem;
-  background: linear-gradient(to bottom, #fff, var(--light-green));
-}
-
-.rows-container {
-  max-width: 70%;
-  margin: 0 auto;
-}
-
 .form-section {
-  background: white;
-  padding: 1rem 2rem;
-  padding-bottom: 3rem;
-  border-radius: 8px;
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+  padding: 1.5rem;
 }
 
 .form-section h3 {
   color: var(--primary-color);
-  margin-bottom: 2rem;
+  font-weight: 800;
+  letter-spacing: 2px;
   text-align: center;
+  margin-bottom: 2.5rem;
+  font-size: 1.3rem;
+  text-transform: uppercase;
 }
 
-.form-row {
-  display: flex;
-  align-items: center;
-  margin-bottom: 1rem;
-  gap: 1rem;
+/* --- Layout Grid --- */
+.info-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+  gap: 1.5rem;
+  margin-bottom: 2rem;
 }
 
-.form-row label {
-  min-width: 180px;
-  text-align: right;
-  color: var(--primary-color);
-  font-weight: 500;
-}
-
-.form-value {
-  color: var(--text-color);
-  font-weight: 500;
-}
-
-.form-row input {
-  flex: 1;
-  padding: 0.5rem;
-  border: 2px solid #e0e0e0;
-  border-radius: 4px;
-  font-size: 1rem;
+.readonly-field-group {
+  padding: 1rem;
+  background-color: #fcfcfc;
+  border-radius: 12px;
+  border: 1px solid #f0f0f0;
   transition: all 0.3s ease;
 }
 
-.form-row input:focus {
-  outline: none;
-  border-color: var(--primary-color);
-  box-shadow: 0 0 0 2px rgba(0, 92, 47, 0.1);
+.readonly-field-group:hover {
+  background-color: white;
+  box-shadow: var(--shadow-soft);
 }
 
-.obligations-text {
-  width: 100%;
-  padding: 1rem;
-  border: 1px solid #ddd;
-  border-radius: 4px;
-  resize: none;
-  height: 200px;
-  margin: 1rem 0;
-  background-color: #f9f9f9;
-  font-family: inherit;
+.obligations-container {
+  margin: 2.5rem 0;
+  background: #fdfdfd;
+  padding: 2rem;
+  border-radius: 20px;
+  border: 1px solid #eee;
 }
 
-.radio-group {
-  margin: 1.5rem 0;
-  display: flex;
-  align-items: center;
+.obligations-container h2 {
+  color: var(--primary-color);
+  font-size: 1.1rem;
+  font-weight: 700;
+  margin-bottom: 1.5rem;
+  letter-spacing: 0.5px;
 }
 
-.radio-options {
-  display: flex;
-  gap: 2rem;
-  margin-left: 1rem;
+.obligations-list {
+  padding-left: 1.2rem;
 }
 
-.radio-label {
-  display: flex;
-  align-items: center;
-  gap: 0.5rem;
+.obligations-list li {
+  margin-bottom: 0.75rem;
+  color: #555;
+  line-height: 1.6;
 }
 
 .button-group {
-  display: flex;
-  justify-content: center;
+  display: grid;
+  grid-template-columns: 1fr;
   gap: 1rem;
-  margin-top: 2rem;
+  margin-top: 3rem;
 }
 
-input[type="radio"] {
-  accent-color: var(--secondary-color); /* Color por defecto */
+@media (min-width: 600px) {
+  .button-group {
+    grid-template-columns: 200px 200px;
+    justify-content: center;
+  }
 }
 
-.submit-btn,
-.cancel-btn {
-  padding: 0.5rem 2rem;
-  border-radius: 4px;
-  font-size: 1rem;
-  cursor: pointer;
-  transition: all 0.3s ease;
-  text-transform: uppercase;
-  font-weight: 500;
-}
-
-.submit-btn {
-  background: var(--primary-color);
-  color: white;
-  border: none;
-}
-
-.submit-btn:hover {
-  background: var(--dark-green);
-  /* transform: translateY(-1px); */
-  box-shadow: 0 4px 8px rgba(0, 92, 47, 0.2);
-}
-
-.cancel-btn {
-  background: #f5f5f5;
-  color: var(--text-color);
-  border: 1px solid #ddd;
-}
-
-.cancel-btn:hover {
-  background: #e5e5e5;
+.main-content {
+  padding: 1.5rem;
 }
 
 @media (max-width: 768px) {
-  .main-content {
-    padding: 1rem;
-  }
-
-  .rows-container {
-    max-width: 100%;
-  }
-
-  .obligations-container {
-    overflow-wrap: break-word;
-  }
-
   .form-section {
-    padding: 1rem;
-  }
-
-  .form-row {
-    flex-direction: column;
-    align-items: flex-start;
-  }
-
-  .form-row label {
-    text-align: left;
-    margin-bottom: 0.5rem;
-  }
-
-  .form-row input {
-    width: 100%;
-  }
-
-  .radio-group {
-    flex-direction: column;
-    align-items: flex-start;
-  }
-
-  .radio-options {
-    margin-left: 0;
-    margin-top: 0.5rem;
-  }
-
-  .button-group {
-    flex-direction: column;
-  }
-
-  .submit-btn,
-  .cancel-btn {
-    width: 100%;
+    padding: 0.5rem;
   }
 }
+

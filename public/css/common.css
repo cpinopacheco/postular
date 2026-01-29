@@ -10,39 +10,279 @@
   --card-color: #ffffff;
   --success-color: #4caf50;
   --error-color: #f44336;
-  --border-color: rgba(0, 77, 64, 0.2);
+  --border-color: rgba(0, 0, 0, 0.05);
+  --shadow-soft: 0 10px 25px -5px rgba(0, 0, 0, 0.05), 0 8px 10px -6px rgba(0, 0, 0, 0.05);
+  --shadow-medium: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+  --shadow-diffuse: 0 0 50px rgba(0, 0, 0, 0.03);
+  --background-color: #F9FAFB;
 }
 
-* {
-  margin: 0;
-  padding: 0;
-  box-sizing: border-box;
+/* --- Global Modern Buttons --- */
+.submit-btn,
+.cancel-btn {
+  padding: 0.8rem 2.5rem;
+  border-radius: 50px;
+  font-size: 1rem;
+  cursor: pointer;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  text-transform: uppercase;
+  font-weight: 600;
+  letter-spacing: 0.5px;
+  border: none;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.submit-btn {
+  background: var(--primary-color);
+  color: white;
+  box-shadow: 0 4px 10px rgba(0, 92, 47, 0.2);
+}
+
+.submit-btn:hover {
+  background: var(--dark-green);
+  transform: translateY(-2px);
+  box-shadow: 0 8px 20px rgba(0, 92, 47, 0.3);
+}
+
+.submit-btn:active {
+  transform: translateY(0);
+}
+
+.cancel-btn {
+  background: white;
+  color: #666;
+  border: 1px solid #e0e0e0;
+}
+
+.cancel-btn:hover {
+  background: #f5f5f5;
+  color: #333;
+  border-color: #ccc;
+}
+
+/* --- Global Modern Radio Cards --- */
+.modern-radio-group {
+  margin: 2rem 0;
+}
+
+.group-label {
+  display: block;
+  font-weight: 500;
+  color: var(--primary-color);
+  margin-bottom: 1rem;
+  font-size: 1.1rem;
+}
+
+.radio-options {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 1rem;
+}
+
+@media (max-width: 550px) {
+  .radio-options {
+    grid-template-columns: 1fr; /* Forzar una sola columna en móviles */
+    gap: 1rem;
+  }
+}
+
+.radio-option {
+  position: relative;
+  width: 100%;
+}
+
+.radio-option input[type="radio"] {
+  position: absolute;
+  opacity: 0;
+  width: 0;
+  height: 0;
+}
+
+.radio-card {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 1rem;
+  background: white;
+  border: 2px solid #e0e0e0;
+  border-radius: 12px;
+  cursor: pointer;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  min-height: 80px; /* Altura mínima para consistencia */
+  width: 100%;
+  box-sizing: border-box; /* Asegurar que el padding no desborde */
+}
+
+.card-content {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+}
+
+.card-content .icon {
+  font-size: 1.5rem;
+}
+
+.card-content .text {
+  font-weight: 500;
+  color: var(--text-color);
+  font-size: 1.05rem;
+}
+
+.selection-indicator {
+  width: 24px;
+  height: 24px;
+  border-radius: 50%;
+  border: 2px solid #ccc;
+  position: relative;
+  transition: all 0.3s ease;
+}
+
+.selection-indicator::after {
+  content: "";
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%) scale(0);
+  width: 12px;
+  height: 12px;
+  background-color: var(--primary-color);
+  border-radius: 50%;
+  transition: transform 0.2s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+}
+
+.radio-card:hover {
+  border-color: #b0bec5;
+  background-color: #fafafa;
+  transform: translateY(-2px);
+  box-shadow: var(--shadow-soft);
+}
+
+.radio-option input[type="radio"]:checked + .radio-card {
+  border-color: var(--primary-color);
+  background-color: #f0f7f4;
+  box-shadow: 0 4px 12px rgba(0, 92, 47, 0.15);
+}
+
+.radio-option input[type="radio"]:checked + .radio-card .selection-indicator {
+  border-color: var(--primary-color);
+}
+
+.radio-option input[type="radio"]:checked + .radio-card .selection-indicator::after {
+  transform: translate(-50%, -50%) scale(1);
+}
+
+.radio-option input[type="radio"]:checked + .radio-card .text {
+  color: var(--primary-color);
+  font-weight: 600;
+}
+
+/* --- Modern Floating Inputs --- */
+.floating-input-group {
+  position: relative;
+  margin-bottom: 1.5rem;
+}
+
+.floating-input-group input {
+  width: 100%;
+  max-width: 100%; /* Prevención crítica de desbordes */
+  box-sizing: border-box; /* Asegurar que padding no sume al ancho */
+  padding: 1rem 1rem 0.5rem; /* Espacio extra arriba para el label */
+  font-size: 1rem;
+  border: 1px solid #ccc;
+  border-radius: 8px;
+  background-color: #f9f9f9;
+  transition: all 0.3s ease;
+  height: 3.5rem;
+  color: var(--text-color);
+}
+
+.floating-input-group input:focus {
+  outline: none;
+  border-color: var(--primary-color);
+  background-color: white;
+  box-shadow: 0 4px 12px rgba(0, 92, 47, 0.1);
+}
+
+.floating-label {
+  position: absolute;
+  left: 1rem;
+  top: 1rem;
+  font-size: 1rem;
+  color: #757575;
+  pointer-events: none;
+  transition: all 0.2s ease;
+  background-color: transparent;
+}
+
+/* Estado Activo: Input con foco o con texto */
+.floating-input-group input:focus ~ .floating-label,
+.floating-input-group input:not(:placeholder-shown) ~ .floating-label {
+  top: 0.25rem;
+  font-size: 0.75rem;
+  color: var(--primary-color);
+  font-weight: 500;
+}
+
+/* Estilo para campos de solo lectura (Readonly) que parecen inputs */
+.readonly-field-group {
+  margin-bottom: 1rem;
+}
+
+.readonly-label {
+  font-size: 0.85rem;
+  color: var(--primary-color);
+  font-weight: 500;
+  display: block;
+  margin-bottom: 0.25rem;
+}
+
+.readonly-value {
+  font-size: 1rem;
+  color: var(--text-color);
+  font-weight: 500;
+  padding: 0.75rem 0;
+  border-bottom: 1px solid #eee;
+  display: block;
 }
 
 body {
   font-family: "Roboto", sans-serif;
-  background: linear-gradient(135deg, var(--dark-green), var(--primary-color));
+  background-color: var(--background-color); /* Fondo limpio y moderno */
   min-height: 100vh;
   display: flex;
   align-items: center;
   justify-content: center;
-  padding: 8px;
+  padding: 20px;
   color: var(--text-color);
 }
 
+@media (max-width: 480px) {
+  body {
+    padding: 10px; /* Menos padding en body para dar espacio al contenido */
+  }
+  
+  .card {
+     border-radius: 12px; /* Radio un poco menor en móviles */
+  }
+}
+
 .card {
-  background: var(--card-green);
-  border-radius: 20px;
+  background: white;
+  border-radius: 24px;
   overflow: hidden;
-  box-shadow: 0 8px 16px rgba(0, 0, 0, 0.3);
+  box-shadow: var(--shadow-medium);
+  border: 1px solid rgba(255, 255, 255, 0.8);
 }
 
 .header {
-  background: var(--primary-color);
-  color: white;
-  padding: 2rem;
+  background: white;
+  color: var(--primary-color);
+  padding: 3rem 2rem;
   text-align: center;
-  border-bottom: 3px solid var(--accent-color);
+  border-bottom: 1px solid #f0f0f0;
 }
 
 .container {
@@ -59,18 +299,20 @@ body {
 
 h1 {
   font-size: 1.8rem;
-  font-weight: 500;
+  font-weight: 900;
+  letter-spacing: 4px;
   margin: 0.5rem 0;
-  color: white;
-  text-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+  color: var(--primary-color);
+  text-transform: uppercase;
 }
 
 h2 {
-  font-size: 1.2rem;
-  font-weight: 400;
-  opacity: 0.9;
+  font-size: 1.1rem;
+  font-weight: 600;
+  letter-spacing: 2px;
   margin: 0.5rem 0;
   color: var(--accent-color);
+  text-transform: uppercase;
 }
 
 h3 {
@@ -80,21 +322,25 @@ h3 {
 }
 
 .footer {
-  background: var(--light-green);
-  padding: 2rem;
+  background: #fdfdfd;
+  padding: 3rem 2rem;
   text-align: center;
-  border-top: 2px solid var(--accent-color);
+  border-top: 1px solid #eee;
 }
 
 .footer h3 {
   color: var(--primary-color);
-  margin-bottom: 0.5rem;
+  margin-bottom: 1rem;
+  font-size: 1rem;
+  letter-spacing: 1px;
 }
 
 .footer p {
-  color: var(--primary-color);
-  line-height: 1.5;
-  opacity: 0.9;
+  color: #777;
+  font-size: 0.85rem;
+  line-height: 1.6;
+  font-weight: 500;
+  letter-spacing: 0.5px;
 }
 
 @keyframes fadeIn {

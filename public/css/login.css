@@ -130,10 +130,18 @@
   gap: 0.75rem;
 }
 
+.login-input-container .floating-input-group {
+  margin-bottom: 0; /* Eliminar margen para centrado vertical perfecto */
+}
+
 .separator {
   color: #ddd;
   font-weight: 300;
   font-size: 1.5rem;
+  line-height: 1;
+  display: flex;
+  align-items: center;
+  height: 3.5rem; /* Alineado con la altura del input */
 }
 
 .submit-btn {

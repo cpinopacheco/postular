@@ -257,6 +257,14 @@ body {
   justify-content: center;
   padding: 20px;
   color: var(--text-color);
+  overflow-x: hidden; /* Evitar scroll horizontal accidental */
+}
+
+/* Prevenir que enlaces largos (como emails) desborden en móvil */
+a {
+  overflow-wrap: break-word;
+  word-wrap: break-word;
+  word-break: break-word;
 }
 
 @media (max-width: 480px) {

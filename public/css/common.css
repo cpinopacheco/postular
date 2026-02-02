@@ -50,6 +50,13 @@
   transform: translateY(0);
 }
 
+.submit-btn:disabled {
+  background: #ccc;
+  cursor: not-allowed;
+  box-shadow: none;
+  transform: none;
+}
+
 .cancel-btn {
   background: white;
   color: #666;
@@ -93,7 +100,8 @@
   width: 100%;
 }
 
-.radio-option input[type="radio"] {
+.radio-option input[type="radio"],
+.checkbox-option input[type="checkbox"] {
   position: absolute;
   opacity: 0;
   width: 0;
@@ -103,16 +111,16 @@
 .radio-card {
   display: flex;
   align-items: center;
-  justify-content: space-between;
-  padding: 1rem;
+  gap: 1rem;
+  padding: 0rem 1rem;
   background: white;
   border: 2px solid #e0e0e0;
   border-radius: 12px;
   cursor: pointer;
   transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-  min-height: 80px; /* Altura mínima para consistencia */
-  width: 100%;
-  box-sizing: border-box; /* Asegurar que el padding no desborde */
+  min-height: 60px;
+  width: auto;
+  display: inline-flex;
 }
 
 .card-content {
@@ -138,18 +146,20 @@
   border: 2px solid #ccc;
   position: relative;
   transition: all 0.3s ease;
+  flex-shrink: 0;
+  order: -1; /* Mover el indicador al principio */
 }
 
 .selection-indicator::after {
   content: "";
   position: absolute;
-  top: 50%;
+  top: 45%;
   left: 50%;
-  transform: translate(-50%, -50%) scale(0);
-  width: 12px;
-  height: 12px;
-  background-color: var(--primary-color);
-  border-radius: 50%;
+  width: 5px;
+  height: 10px;
+  border: solid white;
+  border-width: 0 2.5px 2.5px 0;
+  transform: translate(-50%, -60%) rotate(45deg) scale(0);
   transition: transform 0.2s cubic-bezier(0.175, 0.885, 0.32, 1.275);
 }
 
@@ -160,21 +170,26 @@
   box-shadow: var(--shadow-soft);
 }
 
-.radio-option input[type="radio"]:checked + .radio-card {
+.radio-option input[type="radio"]:checked + .radio-card,
+.checkbox-option input[type="checkbox"]:checked + .radio-card {
   border-color: var(--primary-color);
   background-color: #f0f7f4;
   box-shadow: 0 4px 12px rgba(0, 92, 47, 0.15);
 }
 
-.radio-option input[type="radio"]:checked + .radio-card .selection-indicator {
+.radio-option input[type="radio"]:checked + .radio-card .selection-indicator,
+.checkbox-option input[type="checkbox"]:checked + .radio-card .selection-indicator {
   border-color: var(--primary-color);
+  background-color: var(--primary-color);
 }
 
-.radio-option input[type="radio"]:checked + .radio-card .selection-indicator::after {
-  transform: translate(-50%, -50%) scale(1);
+.radio-option input[type="radio"]:checked + .radio-card .selection-indicator::after,
+.checkbox-option input[type="checkbox"]:checked + .radio-card .selection-indicator::after {
+  transform: translate(-50%, -60%) rotate(45deg) scale(1);
 }
 
-.radio-option input[type="radio"]:checked + .radio-card .text {
+.radio-option input[type="radio"]:checked + .radio-card .text,
+.checkbox-option input[type="checkbox"]:checked + .radio-card .text {
   color: var(--primary-color);
   font-weight: 600;
 }

@@ -75,31 +75,20 @@
                         <div class="radio-group modern-radio-group">
                             <span class="group-label">Confirmación de obligaciones</span>
                             <div class="radio-options">
-                                <div class="radio-option">
-                                    <input type="radio" name="acepto" id="option-yes" value="si" required>
+                                <div class="checkbox-option" style="grid-column: 1 / -1;">
+                                    <input type="checkbox" name="acepto" id="option-yes" required>
                                     <label class="radio-card" for="option-yes">
                                         <div class="card-content">
-                                            <span class="icon">✅</span>
                                             <span class="text">Sí, acepto las obligaciones</span>
                                         </div>
-                                        <div class="selection-indicator"></div>
-                                    </label>
-                                </div>
-                                <div class="radio-option">
-                                    <input type="radio" name="acepto" id="option-no" value="no" required>
-                                    <label class="radio-card" for="option-no">
-                                        <div class="card-content">
-                                            <span class="icon">❌</span>
-                                            <span class="text">No acepto</span>
-                                        </div>
-                                        <div class="selection-indicator"></div>
+                                        <div class="selection-indicator" style="border-radius: 6px;"></div>
                                     </label>
                                 </div>
                             </div>
                         </div>
 
                         <div class="button-group">
-                            <button type="submit" class="submit-btn">Postular</button>
+                            <button type="submit" class="submit-btn" id="btn-postular" disabled>Postular</button>
                             <button type="button" class="cancel-btn">Cancelar</button>
                         </div>
                     </form>
@@ -114,6 +103,16 @@
             </footer>
         </div>
     </div>
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const checkbox = document.getElementById('option-yes');
+            const submitBtn = document.getElementById('btn-postular');
+
+            checkbox.addEventListener('change', function() {
+                submitBtn.disabled = !this.checked;
+            });
+        });
+    </script>
 </body>
 
 </html>

@@ -137,3 +137,137 @@
         font-size: 1.5rem;
     }
 }
+@import url("common.css");
+
+.main-content {
+    padding: 4rem 2rem;
+    background: white;
+    text-align: center;
+}
+
+.status-container {
+    max-width: 600px;
+    margin: 0 auto;
+}
+
+.status-icon {
+    width: 80px;
+    height: 80px;
+    background: #fff8f0;
+    color: var(--accent-color);
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin: 0 auto 2rem;
+    box-shadow: 0 4px 15px rgba(218, 165, 32, 0.15);
+}
+
+.status-icon svg {
+    width: 40px;
+    height: 40px;
+}
+
+.status-container h3 {
+    color: var(--primary-color);
+    font-size: 1.8rem;
+    font-weight: 800;
+    margin-bottom: 1rem;
+    letter-spacing: -0.5px;
+}
+
+.status-message {
+    font-size: 1.1rem;
+    line-height: 1.6;
+    color: #666;
+    margin-bottom: 2.5rem;
+}
+
+.info-alert {
+    background-color: #f0f7f4;
+    border-left: 4px solid var(--primary-color);
+    padding: 1.25rem;
+    color: var(--primary-color);
+    font-size: 0.95rem;
+    border-radius: 8px;
+    text-align: left;
+    margin-bottom: 3rem;
+    font-weight: 500;
+}
+
+.contact-section {
+    padding-top: 2rem;
+    border-top: 1px solid #eee;
+    margin-bottom: 2.5rem;
+}
+
+.contact-section h4 {
+    font-size: 1rem;
+    color: #888;
+    text-transform: uppercase;
+    letter-spacing: 1.5px;
+    margin-bottom: 1.5rem;
+}
+
+.contact-grid {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 2rem;
+}
+
+.contact-label {
+    display: block;
+    font-size: 0.8rem;
+    color: #999;
+    margin-bottom: 0.5rem;
+    font-weight: 700;
+}
+
+.ip-badges {
+    display: flex;
+    justify-content: center;
+    gap: 0.5rem;
+    flex-wrap: wrap;
+    margin-top: 1rem;
+}
+
+.ip-badges span {
+    background: var(--primary-color);
+    color: white;
+    padding: 0.3rem 0.75rem;
+    border-radius: 20px;
+    font-size: 0.85rem;
+    font-weight: 600;
+}
+
+.email-link {
+    color: var(--primary-color);
+    font-weight: 600;
+    text-decoration: none;
+    font-size: 0.9rem;
+    transition: color 0.2s;
+}
+
+.email-link:hover {
+    color: var(--accent-color);
+    text-decoration: underline;
+}
+
+.button-group {
+    margin-top: 2rem;
+}
+
+.submit-btn {
+    text-decoration: none;
+    display: inline-block;
+}
+
+@media (max-width: 480px) {
+    .main-content {
+        padding: 3rem 1.5rem;
+    }
+    
+    .status-container h3 {
+        font-size: 1.5rem;
+    }
+}

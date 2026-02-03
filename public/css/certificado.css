@@ -1,11 +1,9 @@
 @import url("common.css");
-
 .container {
   max-width: 850px;
 }
-
 .content-wrapper {
-  padding: 3rem 2rem;
+  padding: 1rem 2rem; /* Reduced top/bottom padding */
   background: white;
 }
 
@@ -45,7 +43,8 @@
   grid-template-columns: 1fr;
   gap: 1.25rem;
   max-width: 700px;
-  margin: 0 auto;
+  margin: 3rem auto;
+  
 }
 
 @media (min-width: 600px) {
@@ -91,3 +90,121 @@
   text-align: center;
 }
 
+/* Estilos para el botón de imprimir */
+.print-btn {
+  background-color: var(--primary-color);
+  color: white;
+  border: none;
+  padding: 12px 24px;
+  font-size: 1rem;
+  font-weight: 500;
+  border-radius: 4px;
+  cursor: pointer;
+  transition: background-color 0.3s;
+  box-shadow: 0 2px 4px rgba(0,0,0,0.2);
+}
+
+.print-btn:hover {
+  background-color: #003d29;
+}
+
+/* Marca de Agua */
+.watermark {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  opacity: 0.03;
+  pointer-events: none;
+  z-index: 0;
+  width: 50%;
+  max-width: 400px;
+}
+
+/* Estilos de Impresión */
+@media print {
+  @page {
+    margin: 0;
+    size: auto;
+  }
+
+  /* Ocultar elementos no deseados */
+  .no-print, .header::after {
+    display: none !important; /* Hide overlay that might block text */
+  }
+  
+  html, body {
+    height: auto !important;
+    margin: 0 !important;
+    padding: 0 !important;
+    overflow: visible !important;
+  }
+
+  .container {
+    max-width: 100%;
+    width: 100%;
+    box-shadow: none;
+    margin: 0;
+    padding: 0;
+    border: none;
+    page-break-inside: avoid;
+  }
+
+  .card {
+    box-shadow: none;
+    border: none;
+    padding: 0;
+    margin: 0;
+    position: relative;
+    overflow: visible !important; /* Allow watermark to be fully visible */
+  }
+
+  /* Reducir márgenes verticales en impresión para ajustar a una hoja */
+  .header {
+    margin-bottom: 0.2cm;
+    padding-bottom: 0.2cm;
+    border-bottom: 1px solid #333;
+    background: transparent !important;
+    color: #000 !important; /* Ensure text is dark */
+  }
+
+  .header-text {
+    color: #005c2f !important; /* Force primary color (or black) */
+    display: block !important;
+    opacity: 1 !important;
+  }
+
+  .section-title {
+    margin: 1rem 0;
+  }
+
+  .data-container {
+    margin: 1rem auto;
+    gap: 1rem;
+  }
+
+  .content-wrapper {
+    padding: 0.5cm 1cm; 
+  }
+  
+  .footer {
+     margin-top: 1cm;
+     padding-bottom: 0;
+  }
+  
+  .footer-note {
+     margin-top: 1rem;
+     padding-bottom: 0;
+     border-top: 1px solid #ccc;
+  }
+
+  /* Marca de agua más visible en papel */
+  .watermark {
+    opacity: 0.1;
+    width: 50%;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    z-index: -1; /* Ensure it stays behind */
+    display: block !important;
+  }

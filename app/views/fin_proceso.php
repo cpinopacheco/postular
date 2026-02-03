@@ -51,9 +51,7 @@
                         </div>
                     </div>
 
-                    <div class="button-group">
-                        <a href="/" class="submit-btn">Volver al Inicio</a>
-                    </div>
+
                 </div>
             </main>
 

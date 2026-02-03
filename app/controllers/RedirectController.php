@@ -8,7 +8,7 @@ class RedirectController
 {
     public function redirectToLogin()
     {
-        header("Location: app/views/login.php");
+        header("Location: app/views/inicio.php");
         exit();
     }
 }

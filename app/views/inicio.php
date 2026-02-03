@@ -4,7 +4,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Login</title>
+    <title>Inicio</title>
     <link rel="stylesheet" href="/public/css/login.css">
 </head>
 
@@ -20,20 +20,20 @@
             <main class="main-content">
                 <section class="login-section">
                     <h3>Bienvenido</h3>
-                    <form class="login-form">
+                    <form class="login-form" action="/index.php?action=validar" method="POST">
                         <div class="form-group">
                             <label for="codigo">Código de Funcionario</label>
                             
                             <div class="login-input-container">
                                 <div class="floating-input-group" style="flex: 1;">
-                                    <input type="text" id="codigo" placeholder=" " required maxlength="6" pattern="\d{6}" class="floating-input" oninput="this.value = this.value.replace(/[^0-9]/g, '');">
+                                    <input type="text" id="codigo" name="codigo_num" placeholder=" " required maxlength="6" pattern="\d{6}" class="floating-input" oninput="this.value = this.value.replace(/[^0-9]/g, '');">
                                     <label for="codigo" class="floating-label">Número</label>
                                 </div>
                                 
                                 <span class="separator">-</span>
                                 
                                 <div class="floating-input-group" style="width: 80px;">
-                                    <input type="text" id="verificador" placeholder=" " required maxlength="1" pattern="[a-zA-Z0-9]" class="floating-input" style="text-align: center;" oninput="this.value = this.value.replace(/[^a-zA-Z0-9]/g, '');">
+                                    <input type="text" id="verificador" name="codigo_dv" placeholder=" " required maxlength="1" pattern="[a-zA-Z0-9]" class="floating-input" style="text-align: center; text-transform: uppercase;" oninput="this.value = this.value.toUpperCase().replace(/[^A-Z0-9]/g, '');">
                                     <label for="verificador" class="floating-label" style="left: 50%; transform: translateX(-50%);">DV</label>
                                 </div>
                             </div>

@@ -22,21 +22,22 @@
                 <section class="form-section">
                     <h3>DATOS PERSONALES</h3>
 
-                    <form>
+                    <form action="/index.php?action=inscribir" method="POST">
+                        <input type="hidden" name="codigo" value="<?= htmlspecialchars($funcionario['COD_FUN'] ?? '') ?>">
                         <div class="rows-container">
                             <!-- Datos Informativos (Read Only) con diseño limpio -->
                             <div class="info-grid">
                                 <div class="readonly-field-group">
                                     <span class="readonly-label">Nombre del Funcionario</span>
-                                    <span class="readonly-value">Juan Pérez (ejemplo)</span>
+                                    <span class="readonly-value"><?= htmlspecialchars($funcionario['NOM_COMPL'] ?? '') ?></span>
                                 </div>
                                 <div class="readonly-field-group">
                                     <span class="readonly-label">Código</span>
-                                    <span class="readonly-value">986050v (ejemplo)</span>
+                                    <span class="readonly-value"><?= htmlspecialchars($funcionario['COD_FUN'] ?? '') ?></span>
                                 </div>
                                 <div class="readonly-field-group">
                                     <span class="readonly-label">Grado Actual</span>
-                                    <span class="readonly-value">Primer Grado (ejemplo)</span>
+                                    <span class="readonly-value"><?= htmlspecialchars($funcionario['GRADO'] ?? '') ?></span>
                                 </div>
                             </div>
 
@@ -44,17 +45,17 @@
 
                             <!-- Campos Editables con Floating Labels -->
                             <div class="floating-input-group">
-                                <input type="email" id="email-inst" required placeholder=" " class="floating-input">
+                                <input type="email" id="email-inst" name="email_inst" required placeholder=" " class="floating-input">
                                 <label for="email-inst" class="floating-label">Correo Institucional</label>
                             </div>
 
                             <div class="floating-input-group">
-                                <input type="email" id="email-pers" required placeholder=" " class="floating-input">
+                                <input type="email" id="email-pers" name="email-pers" required placeholder=" " class="floating-input">
                                 <label for="email-pers" class="floating-label">Email Personal</label>
                             </div>
 
                             <div class="floating-input-group">
-                                <input type="tel" id="tel-ip" required placeholder=" " class="floating-input">
+                                <input type="tel" id="tel-ip" name="tel-ip" required placeholder=" " class="floating-input">
                                 <label for="tel-ip" class="floating-label">Teléfono IP dotación</label>
                             </div>
                         </div>

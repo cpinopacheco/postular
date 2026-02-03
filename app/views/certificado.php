@@ -25,27 +25,27 @@
                     <div class="data-container">
                         <div class="data-row">
                             <span class="data-label">Nombre:</span>
-                            <span class="data-value">Juan Pérez (ejemplo)</span>
+                            <span class="data-value"><?= htmlspecialchars($datosInscripcion['NOM_COMPL'] ?? '') ?></span>
                         </div>
 
                         <div class="data-row">
                             <span class="data-label">Código:</span>
-                            <span class="data-value">986050v (ejemplo)</span>
+                            <span class="data-value"><?= htmlspecialchars($datosInscripcion['CODIGO'] ?? '') ?></span>
                         </div>
 
                         <div class="data-row">
-                            <span class="data-label">Calificación:</span>
-                            <span class="data-value">{calificación}</span>
+                            <span class="data-label">Grado:</span>
+                            <span class="data-value"><?= htmlspecialchars($datosInscripcion['GRADO'] ?? '') ?></span>
                         </div>
 
                         <div class="data-row">
                             <span class="data-label">Fecha de inscripción:</span>
-                            <span class="data-value">{fecha}</span>
+                            <span class="data-value"><?= htmlspecialchars($datosInscripcion['FECH_INSC'] ?? date('Y-m-d')) ?></span>
                         </div>
 
                         <div class="data-row">
                             <span class="data-label">Número de registro:</span>
-                            <span class="data-value">{identificación}</span>
+                            <span class="data-value"><?= htmlspecialchars($datosInscripcion['ID_INSC'] ?? '') ?></span>
                         </div>
                     </div>
                 </main>

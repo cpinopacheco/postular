@@ -53,7 +53,7 @@
             </footer>
         </div>
         <div class="no-print" style="text-align: center; margin-top: 2rem; padding-bottom: 2rem;">
-            <button onclick="window.print()" class="print-btn">Imprimir Certificado</button>
+            <button onclick="window.print()" class="submit-btn" style="margin: 0 auto;">Imprimir Certificado</button>
         </div>
     </div>
 </body>

@@ -90,23 +90,7 @@
   text-align: center;
 }
 
-/* Estilos para el botón de imprimir */
-.print-btn {
-  background-color: var(--primary-color);
-  color: white;
-  border: none;
-  padding: 12px 24px;
-  font-size: 1rem;
-  font-weight: 500;
-  border-radius: 4px;
-  cursor: pointer;
-  transition: background-color 0.3s;
-  box-shadow: 0 2px 4px rgba(0,0,0,0.2);
-}
 
-.print-btn:hover {
-  background-color: #003d29;
-}
 
 /* Marca de Agua */
 .watermark {

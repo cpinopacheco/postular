@@ -1,0 +1,71 @@
+@import url("common.css");
+
+body {
+    background-color: var(--background-color);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    min-height: 100vh;
+    margin: 0;
+    padding: 1rem;
+}
+
+.container {
+    width: 100%;
+    max-width: 480px;
+}
+
+.card {
+    background: white;
+    padding: 3rem 2rem;
+    border-radius: 24px;
+    box-shadow: var(--shadow-medium);
+    text-align: center;
+    border: 1px solid rgba(255, 255, 255, 0.8);
+    position: relative;
+    overflow: hidden;
+}
+
+.icon-container {
+    width: 80px;
+    height: 80px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin: 0 auto 1.5rem;
+}
+
+.icon-container.error {
+    background-color: #ffebee;
+    color: #c62828;
+}
+
+.icon-container.success {
+    background-color: #e8f5e9;
+    color: #2e7d32;
+}
+
+.icon-container svg {
+    width: 40px;
+    height: 40px;
+}
+
+h2 {
+    color: var(--primary-color);
+    margin-bottom: 1rem;
+    font-size: 1.5rem;
+    font-weight: 700;
+}
+
+p {
+    color: #555;
+    font-size: 1.1rem;
+    line-height: 1.6;
+    margin-bottom: 2rem;
+}
+
+.btn-container {
+    display: flex;
+    justify-content: center;
+}

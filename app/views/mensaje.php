@@ -5,44 +5,36 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Aviso</title>
     <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500;700&display=swap" rel="stylesheet">
-    <style>
-        body {
-            font-family: 'Roboto', sans-serif;
-            background-color: #f4f6f8;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            height: 100vh;
-            margin: 0;
-        }
-        .card {
-            background: white;
-            padding: 2rem;
-            border-radius: 8px;
-            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
-            text-align: center;
-            max-width: 500px;
-            width: 100%;
-            border-top: 5px solid <?php echo ($tipo === 'error') ? '#dc3545' : '#28a745'; ?>;
-        }
-        h2 { margin-top: 0; color: #333; }
-        p { color: #666; font-size: 1.1rem; }
-        .btn {
-            display: inline-block;
-            margin-top: 1rem;
-            padding: 10px 20px;
-            background-color: #007bff;
-            color: white;
-            text-decoration: none;
-            border-radius: 4px;
-        }
-    </style>
+    <link rel="stylesheet" href="/public/css/mensaje.css">
 </head>
 <body>
-    <div class="card">
-        <h2><?php echo ($tipo === 'error') ? 'No es posible postular' : 'Información'; ?></h2>
-        <p><?php echo htmlspecialchars($mensaje); ?></p>
-        <a href="/" class="btn">Volver al inicio</a>
+    <div class="container">
+        <div class="card">
+            <div class="icon-container <?php echo ($tipo === 'error') ? 'error' : 'success'; ?>">
+                <?php if ($tipo === 'error'): ?>
+                    <!-- Icono Error (X) -->
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <circle cx="12" cy="12" r="10"></circle>
+                        <line x1="15" y1="9" x2="9" y2="15"></line>
+                        <line x1="9" y1="9" x2="15" y2="15"></line>
+                    </svg>
+                <?php else: ?>
+                    <!-- Icono Info/Success (i) -->
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <circle cx="12" cy="12" r="10"></circle>
+                        <line x1="12" y1="16" x2="12" y2="12"></line>
+                        <line x1="12" y1="8" x2="12.01" y2="8"></line>
+                    </svg>
+                <?php endif; ?>
+            </div>
+
+            <h2><?php echo ($tipo === 'error') ? 'No es posible postular' : 'Información'; ?></h2>
+            <p><?php echo htmlspecialchars($mensaje); ?></p>
+            
+            <div class="btn-container">
+                <a href="/" class="submit-btn" style="text-decoration: none;">Volver al inicio</a>
+            </div>
+        </div>
     </div>
 </body>
 </html>

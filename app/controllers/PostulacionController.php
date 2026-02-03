@@ -20,6 +20,12 @@ class PostulacionController
 
     public function index()
     {
+        // Verificar si el proceso está abierto antes de mostrar el login
+        if (!$this->procesoModel->isAbierto()) {
+            require 'app/views/fin_proceso.php';
+            return;
+        }
+
         require 'app/views/inicio.php';
     }
 

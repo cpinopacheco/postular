@@ -1,5 +1,6 @@
 <?php
 
+require_once 'config/load_env.php';
 require_once 'config/db.php';
 require_once 'app/controllers/PostulacionController.php';
 

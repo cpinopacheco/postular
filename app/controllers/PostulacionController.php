@@ -58,9 +58,8 @@ class PostulacionController
         // 3. ¿Existe en BD?
         $funcionario = $this->postulanteModel->findByCodigo($codigo);
         if (!$funcionario) {
-            $mensaje = "El código ingresado no se encuentra en la base de datos de funcionarios habilitados.";
-            $tipo = "error";
-            require 'app/views/mensaje.php';
+            error_log("[DEBUG] ERROR: Funcionario no encontrado.");
+            $this->rechazar(null, "ERROR: El código ingresado no existe en la base de datos de habilitados.");
             exit;
         }
 
@@ -80,6 +79,11 @@ class PostulacionController
         
         // 1. Obtención del grado actual
         $gradoActual = $funcionario['GRADO'] ?? '';
+        if (empty($gradoActual)) {
+            error_log("[DEBUG] ERROR: Grado no determinado.");
+            $this->rechazar($funcionario, "ERROR: No se pudo determinar el grado actual del funcionario.");
+            exit;
+        }
         error_log("[DEBUG] [Paso 1] Grado actual en POSTULANTES: '" . $gradoActual . "'");
         
         // 2. Selección de notas del grado actual
@@ -104,7 +108,7 @@ class PostulacionController
 
             if ($diferencia->y > 2) {
                 error_log("[DEBUG] !!! RECHAZO: Han pasado más de 2 años desde su ascenso sin registros de notas.");
-                $this->rechazar($funcionario, "No se puede inscribir. Han pasado más de 2 años desde su último ascenso (" . $fechaAscensoStr . ") sin historial de notas en este grado.");
+                $this->rechazar($funcionario, "RECHAZO: Más de 2 años desde el ascenso sin registros de notas en grado actual.");
                 exit;
             } else {
                 error_log("[DEBUG] >>> APROBADO: Menos de 2 años desde el ascenso.");
@@ -128,7 +132,7 @@ class PostulacionController
 
         if ($tieneMerito) {
             error_log("[DEBUG] !!! RECHAZO: El funcionario ya aprobó/cursó con MÉRITO. No es necesario inscribirse.");
-            $this->rechazar($funcionario, "No se puede inscribir. Ya cuenta con MÉRITO en este grado, lo que indica que ya realizó el curso.");
+            $this->rechazar($funcionario, "RECHAZO: El funcionario ya posee MÉRITO en el grado actual.");
             exit;
         }
 
@@ -168,7 +172,7 @@ class PostulacionController
         
         if ($maxConsecutivas >= 3) {
             error_log("[DEBUG] !!! RECHAZO CRÍTICO: 3 o más reprobaciones consecutivas.");
-            $this->rechazar($funcionario, "Rechazado: Cuenta con 3 reprobaciones consecutivas en el grado " . $gradoActual . ". Prohibición permanente de inscripción.");
+            $this->rechazar($funcionario, "RECHAZO: Límite alcanzado de 3 reprobaciones consecutivas en grado actual.");
             exit;
         }
 
@@ -194,8 +198,8 @@ class PostulacionController
                 $this->mostrarFormulario($funcionario);
                 exit;
             } else if ($anioProceso > ($ultimaReprobacionAnio + 1)) {
-                error_log("[DEBUG] !!! RECHAZO: Laguna detectada. Reprobó en " . $ultimaReprobacionAnio . " y no hay nota de " . ($anioProceso - 1));
-                $this->rechazar($funcionario, "Rechazado: Existe laguna de años tras su última reprobación (" . $ultimaReprobacionAnio . "). Debe haber postulado al año siguiente.");
+                error_log("[DEBUG] !!! RECHAZO: Laguna detectada tras reprobación en " . $ultimaReprobacionAnio);
+                $this->rechazar($funcionario, "RECHAZO: Laguna detectada (No postuló el año consecutivo a su última reprobación).");
                 exit;
             }
         }
@@ -224,13 +228,17 @@ class PostulacionController
 
     private function rechazar($funcionario, $razon)
     {
+        $codigo = $funcionario['COD_FUN'] ?? 'DESCONOCIDO';
+        $nombre = $funcionario['NOM_COMPL'] ?? 'DESCONOCIDO';
+        $grado = $funcionario['GRADO'] ?? 'N/A';
+
         $this->postulanteModel->logExclusion(
-            $funcionario['COD_FUN'], 
-            $funcionario['NOM_COMPL'], 
-            $funcionario['GRADO'], 
+            $codigo, 
+            $nombre, 
+            $grado, 
             $razon
         );
-        $mensaje = "No puede inscribirse: " . $razon;
+        $mensaje = $razon;
         $tipo = "error";
         require 'app/views/mensaje.php';
     }

@@ -65,111 +65,144 @@ class PostulacionController
         }
 
         // 4. ¿Es reincorporado / recurso?
-        // Asumiendo que 'ESTAD' o alguna columna indica esto. 
-        // Lógica PLACEHOLDER: Si ESTAD contiene 'REINC' o 'RECURSO'
-        // Ajustar según valores reales de la columna ESTAD
-        $esReincorporado = (stripos($funcionario['ESTAD'], 'REINC') !== false || stripos($funcionario['ESTAD'], 'REC') !== false);
+        // La columna REI_REC contiene "SI" o "NO"
+        $esReincorporado = (strtoupper($funcionario['REI_REC'] ?? 'NO') === 'SI');
         
         if ($esReincorporado) {
             $this->mostrarFormulario($funcionario);
             exit;
         }
-
-        // Validaciones de Requisitos (Si no es reincorporado)
-        $notas = $this->postulanteModel->getNotas($codigo);
         
-        if (!empty($notas)) {
-            // Tiene notas
+        // Si NO es reincorporado, continuar con validaciones de notas
+        
+        // LÓGICA DE VALIDACIÓN COMBINADA (Rama A: Sin Notas + Rama B: Logica Estricta Anterior)
+        error_log("[DEBUG] >>> INICIO VALIDACIÓN para Funcionario: " . $codigo);
+        
+        // 1. Obtención del grado actual
+        $gradoActual = $funcionario['GRADO'] ?? '';
+        error_log("[DEBUG] [Paso 1] Grado actual en POSTULANTES: '" . $gradoActual . "'");
+        
+        // 2. Selección de notas del grado actual
+        $notas = $this->postulanteModel->getNotasByGrado($codigo, $gradoActual);
+        
+        // --- RAMA A: CASO SI NO TIENE NOTAS EN EL GRADO ACTUAL ---
+        if (empty($notas)) {
+            error_log("[DEBUG] [Rama A] No se encontraron notas para el grado '" . $gradoActual . "'. Evaluando antigüedad desde ascenso.");
             
-            // ¿Tiene mérito? 
-            // CONDICION == 'APROBADO' es un buen criterio por defecto
-            $ultimaNota = end($notas); // Asumiendo orden, si no ordenar
-            $tieneMerito = ($ultimaNota['condicion'] ?? '') === 'APROBADO'; // Ajustar columna (user dijo: condicion)
-            
-            if (!$tieneMerito) {
-                // Si la última nota no es aprobada, quizas rechazar?
-                // El diagrama dice "¿Tiene mérito? No -> Tiene laguna...?"
-                // Así que si NO tiene mérito, seguimos el flujo de la izquierda
+            $fechaAscensoStr = $funcionario['FECH_ASC'] ?? '';
+            if (empty($fechaAscensoStr)) {
+                error_log("[DEBUG] [Rama A.1] No tiene FECH_ASC. Permitiendo inscripción por defecto.");
+                $this->mostrarFormulario($funcionario);
+                exit;
             }
 
-            // ¿Tiene laguna en el proceso?
-            // Verificamos si los años son consecutivos
-            $anios = array_column($notas, 'ano');
-            sort($anios);
-            $tieneLaguna = false;
-            for ($i = 0; $i < count($anios) - 1; $i++) {
-                if ($anios[$i + 1] - $anios[$i] > 1) {
-                    $tieneLaguna = true;
-                    break;
-                }
-            }
-
-            // Diagrama: ¿Tiene mérito?
-            if ($tieneMerito) {
-               // SI tiene mérito -> Se puede inscribir?
-               // El diagrama muestra: ¿Tiene mérito? -> Sí -> ¿Tiene notas? (loop?)
-               // No, el diagrama es:
-               // ¿Tiene notas? -> Sí -> ¿Tiene mérito? -> Sí -> Se puede inscribir (según rama izquierda que vuelve a "Se puede inscribir"?)
-               // Espera, el diagrama dice:
-               // ¿Tiene notas? -> Sí -> ¿Tiene mérito? -> Sí -> Se puede inscribir (No hay cajita, conecta a la linea de abajo que dice "Se puede inscribir"?)
-               // NO, mira la linea: Sí (Mérito) -> Se puede inscribir. 
-               // No (Mérito) -> ¿Tiene laguna?
-               
-               $this->mostrarFormulario($funcionario);
-               exit;
-            } 
-            
-            // NO tiene mérito
-            // ¿Tiene laguna en el proceso?
-            if ($tieneLaguna) {
-               // Sí laguna -> ¿Tiene antigüedad en el grado?
-               if ($this->checkAntiguedad($funcionario)) {
-                    $this->mostrarFormulario($funcionario); // Sí antigüedad
-               } else {
-                    $this->rechazar($funcionario, "Tiene laguna en el proceso y no cumple antigüedad."); // No antigüedad
-               }
-               exit;
-            }
-            
-            // No laguna -> ¿Ha reprobado más de 2 veces?
-            $reprobaciones = 0;
-            foreach ($notas as $nota) {
-                if (($nota['nota'] ?? 0) < 4.0 || ($nota['condicion'] ?? '') === 'REPROBADO') {
-                    $reprobaciones++;
-                }
-            }
-            
-            if ($reprobaciones > 2) {
-               // Sí > 2 reprobaciones -> ¿Tiene antigüedad en el grado?
-               if ($this->checkAntiguedad($funcionario)) {
-                    $this->mostrarFormulario($funcionario);
-               } else {
-                    $this->rechazar($funcionario, "Ha reprobado más de 2 veces y no cumple antigüedad.");
-               }
-               exit;
-            }
-            
-            // No > 2 reprobaciones -> Se puede inscribir
-            $this->mostrarFormulario($funcionario);
-            exit;
-
-        } else {
-            // NO tiene notas
-            // ... (lógica existente correcta)
-             // ¿Más de 2 años desde el ascenso?
-            // FECH_ASC vs Hoy
-            $fechaAscenso = new DateTime($funcionario['FECH_ASC']);
+            $fechaAscenso = new DateTime($fechaAscensoStr);
             $hoy = new DateTime();
             $diferencia = $hoy->diff($fechaAscenso);
             
+            error_log("[DEBUG] [Rama A.2] Tiempo desde ascenso (" . $fechaAscensoStr . "): " . $diferencia->y . " años.");
+
             if ($diferencia->y > 2) {
-                $this->rechazar($funcionario, "Han pasado más de 2 años desde su último ascenso sin historial de notas.");
+                error_log("[DEBUG] !!! RECHAZO: Han pasado más de 2 años desde su ascenso sin registros de notas.");
+                $this->rechazar($funcionario, "No se puede inscribir. Han pasado más de 2 años desde su último ascenso (" . $fechaAscensoStr . ") sin historial de notas en este grado.");
                 exit;
             } else {
+                error_log("[DEBUG] >>> APROBADO: Menos de 2 años desde el ascenso.");
                 $this->mostrarFormulario($funcionario);
                 exit;
             }
         }
+
+        // --- RAMA B: CASO SI SÍ TIENE NOTAS (Lógica Anterior Verificada) ---
+        error_log("[DEBUG] [Rama B] Se encontraron " . count($notas) . " registro(s) de notas. Evaluando normativa...");
+
+        // 1. Regla de MÉRITO (Criterio de Exclusión: Ya realizó el curso)
+        $tieneMerito = false;
+        foreach ($notas as $nota) {
+            if (strtoupper($nota['condicion'] ?? '') === 'MERITO') {
+                $tieneMerito = true;
+                error_log("[DEBUG] [Regla 1] MÉRITO DETECTADO: El funcionario ya cuenta con mérito en su grado actual (" . ($nota['ano'] ?? 'N/A') . ").");
+                break;
+            }
+        }
+
+        if ($tieneMerito) {
+            error_log("[DEBUG] !!! RECHAZO: El funcionario ya aprobó/cursó con MÉRITO. No es necesario inscribirse.");
+            $this->rechazar($funcionario, "No se puede inscribir. Ya cuenta con MÉRITO en este grado, lo que indica que ya realizó el curso.");
+            exit;
+        }
+
+        // 2. Regla prioritaria: condición ANTIGÜEDAD (Identificación para saltar laguna)
+        $tieneAntigüedad = false;
+        foreach ($notas as $nota) {
+            $condicionNota = strtoupper($nota['condicion'] ?? '');
+            if ($condicionNota === 'ANTIGUEDAD' || $condicionNota === 'ANTIGÜEDAD') {
+                $tieneAntigüedad = true;
+                error_log("[DEBUG] [Regla 2] ANTIGÜEDAD DETECTADA: Identificada para prioridad sobre lagunas.");
+                break;
+            }
+        }
+        
+        // 3. Límite máximo de repeticiones (3 consecutivas)
+        error_log("[DEBUG] [Regla 3] Evaluando historial de reprobaciones consecutivas...");
+        $reprobacionesConsecutivas = 0;
+        $maxConsecutivas = 0;
+        $ultimaReprobacionAnio = null;
+        
+        foreach ($notas as $nota) {
+            $anio = (int)($nota['ano'] ?? 0);
+            $condicion = strtoupper($nota['condicion'] ?? '');
+            $esReprobado = ($condicion === 'REPROBADO');
+            
+            if ($esReprobado) {
+                $reprobacionesConsecutivas++;
+                $ultimaReprobacionAnio = $anio;
+                if ($reprobacionesConsecutivas > $maxConsecutivas) {
+                    $maxConsecutivas = $reprobacionesConsecutivas;
+                }
+                error_log("[DEBUG] -> Año " . $anio . ": REPROBADO. Contador: " . $reprobacionesConsecutivas);
+            } else {
+                $reprobacionesConsecutivas = 0;
+            }
+        }
+        
+        if ($maxConsecutivas >= 3) {
+            error_log("[DEBUG] !!! RECHAZO CRÍTICO: 3 o más reprobaciones consecutivas.");
+            $this->rechazar($funcionario, "Rechazado: Cuenta con 3 reprobaciones consecutivas en el grado " . $gradoActual . ". Prohibición permanente de inscripción.");
+            exit;
+        }
+
+        // Si no tiene 3 consecutivas, la antigüedad permite inscripción inmediata
+        if ($tieneAntigüedad) {
+            error_log("[DEBUG] >>> APROBADO: Prioridad otorgada por condición 'ANTIGÜEDAD'. Saltando validaciones de laguna.");
+            $this->mostrarFormulario($funcionario);
+            exit;
+        }
+        
+        // 4. Validación de continuidad anual tras reprobación
+        error_log("[DEBUG] [Regla 4] Verificando continuidad tras reprobación...");
+        $tieneAlgunaReprobacion = ($ultimaReprobacionAnio !== null);
+        
+        if (!$tieneAlgunaReprobacion) {
+            error_log("[DEBUG] >>> APROBADO: No registra reprobaciones en el grado actual.");
+            $this->mostrarFormulario($funcionario);
+            exit;
+        } else {
+            $anioProceso = (int)date('Y'); // 2026
+            if ($anioProceso === ($ultimaReprobacionAnio + 1)) {
+                error_log("[DEBUG] >>> APROBADO: Continuidad validada (postula al año siguiente de reprobar).");
+                $this->mostrarFormulario($funcionario);
+                exit;
+            } else if ($anioProceso > ($ultimaReprobacionAnio + 1)) {
+                error_log("[DEBUG] !!! RECHAZO: Laguna detectada. Reprobó en " . $ultimaReprobacionAnio . " y no hay nota de " . ($anioProceso - 1));
+                $this->rechazar($funcionario, "Rechazado: Existe laguna de años tras su última reprobación (" . $ultimaReprobacionAnio . "). Debe haber postulado al año siguiente.");
+                exit;
+            }
+        }
+        
+        error_log("[DEBUG] >>> APROBADO: Flujo completado.");
+        $this->mostrarFormulario($funcionario);
+        exit;
     }
 
     private function checkAntiguedad($funcionario)

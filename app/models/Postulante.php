@@ -38,14 +38,21 @@ class Postulante
     }
 
     /**
-     * Obtiene el historial de notas del funcionario.
+     * Obtiene el historial de notas del funcionario filtrado por grado.
      */
-    public function getNotas($codigo)
+    public function getNotasByGrado($codigo, $grado)
     {
-        $query = "SELECT * FROM " . $this->table_notas . " WHERE codigo = :codigo";
+        // Solo las notas del grado actual son válidas según nueva normativa
+        $query = "SELECT * FROM " . $this->table_notas . " 
+                  WHERE codigo = :codigo 
+                  AND grado = :grado 
+                  ORDER BY ano ASC";
+        
         $stmt = $this->conn->prepare($query);
         $stmt->bindParam(':codigo', $codigo);
+        $stmt->bindParam(':grado', $grado);
         $stmt->execute();
+        
         return $stmt->fetchAll(PDO::FETCH_ASSOC);
     }
 

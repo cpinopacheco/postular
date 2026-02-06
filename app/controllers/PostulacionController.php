@@ -2,7 +2,7 @@
 
 require_once 'app/models/Postulante.php';
 require_once 'app/models/Proceso.php';
-require_once 'app/helpers/GradeHelper.php';
+require_once 'app/helpers/NormalizationHelper.php';
 require_once 'config/db.php';
 
 class PostulacionController
@@ -41,22 +41,13 @@ class PostulacionController
         $codigoDv = strtoupper($_POST['codigo_dv'] ?? '');
         $codigo = $codigoNum . $codigoDv; // Asumiendo formato concatenado sin guión
         
-        // 1. ¿Proceso abierto?
+        // Regla 0.A: ¿Proceso abierto?
         if (!$this->procesoModel->isAbierto()) {
             require 'app/views/fin_proceso.php';
             exit;
         }
 
-        // 2. ¿Ya está inscrito?
-        $inscrito = $this->postulanteModel->isInscrito($codigo);
-        if ($inscrito) {
-            // Pasar datos a la vista si es necesario
-            $datosInscripcion = $inscrito;
-            require 'app/views/certificado.php';
-            exit;
-        }
-
-        // 3. ¿Existe en BD?
+        // Regla 0.B: ¿Existe en BD? (Validación de Existencia)
         $funcionario = $this->postulanteModel->findByCodigo($codigo);
         if (!$funcionario) {
             error_log("[DEBUG] ERROR: Funcionario no encontrado.");
@@ -64,9 +55,16 @@ class PostulacionController
             exit;
         }
 
-        // 4. ¿Es reincorporado / recurso?
-        // La columna REI_REC contiene "SI" o "NO"
-        $esReincorporado = (strtoupper($funcionario['REI_REC'] ?? 'NO') === 'SI');
+        // Regla 0.C: ¿Ya está inscrito?
+        $inscrito = $this->postulanteModel->isInscrito($codigo);
+        if ($inscrito) {
+            $datosInscripcion = $inscrito;
+            require 'app/views/certificado.php';
+            exit;
+        }
+
+        // Regla 0.D: ¿Es reincorporado / recurso?
+        $esReincorporado = (NormalizationHelper::siNo($funcionario['REI_REC'] ?? 'NO') === 'SI');
         
         if ($esReincorporado) {
             $this->mostrarFormulario($funcionario);
@@ -80,7 +78,7 @@ class PostulacionController
         
         // 1. Obtención y Normalización del grado actual
         $gradoOriginal = $funcionario['GRADO'] ?? '';
-        $gradoActual = GradeHelper::transformar($gradoOriginal);
+        $gradoActual = NormalizationHelper::grado($gradoOriginal);
         
         if (empty($gradoActual)) {
             error_log("[DEBUG] ERROR: Grado no determinado.");
@@ -96,9 +94,10 @@ class PostulacionController
         if (empty($notas)) {
             error_log("[DEBUG] [Rama A] No se encontraron notas para el grado '" . $gradoActual . "'. Evaluando antigüedad desde ascenso.");
             
+            // Regla A.1: Tiempo desde Ascenso
             $fechaAscensoStr = $funcionario['FECH_ASC'] ?? '';
             if (empty($fechaAscensoStr)) {
-                error_log("[DEBUG] [Rama A.1] No tiene FECH_ASC. Permitiendo inscripción por defecto.");
+                error_log("[DEBUG] [Regla A.1] No tiene FECH_ASC. Permitiendo inscripción por defecto.");
                 $this->mostrarFormulario($funcionario);
                 exit;
             }
@@ -123,10 +122,10 @@ class PostulacionController
         // --- RAMA B: CASO SI SÍ TIENE NOTAS (Lógica Anterior Verificada) ---
         error_log("[DEBUG] [Rama B] Se encontraron " . count($notas) . " registro(s) de notas. Evaluando normativa...");
 
-        // 1. Regla de MÉRITO (Criterio de Exclusión: Ya realizó el curso)
+        // Regla B.1: Mérito (Prioridad MÁXIMA)
         $tieneMerito = false;
         foreach ($notas as $nota) {
-            if (strtoupper($nota['condicion'] ?? '') === 'MERITO') {
+            if (NormalizationHelper::condicion($nota['condicion'] ?? '') === 'MERITO') {
                 $tieneMerito = true;
                 error_log("[DEBUG] [Regla 1] MÉRITO DETECTADO: El funcionario ya cuenta con mérito en su grado actual (" . ($nota['ano'] ?? 'N/A') . ").");
                 break;
@@ -139,37 +138,34 @@ class PostulacionController
             exit;
         }
 
-        // 2. Regla prioritaria: condición ANTIGÜEDAD (Identificación para saltar laguna)
+        // Regla B.2: Antigüedad (El "Comodín")
         $tieneAntigüedad = false;
         foreach ($notas as $nota) {
-            $condicionNota = strtoupper($nota['condicion'] ?? '');
-            if ($condicionNota === 'ANTIGUEDAD' || $condicionNota === 'ANTIGÜEDAD') {
+            $condicionNota = NormalizationHelper::condicion($nota['condicion'] ?? '');
+            if ($condicionNota === 'ANTIGUEDAD') {
                 $tieneAntigüedad = true;
-                error_log("[DEBUG] [Regla 2] ANTIGÜEDAD DETECTADA: Identificada para prioridad sobre lagunas.");
+                error_log("[DEBUG] [Regla B.2] ANTIGÜEDAD DETECTADA: Identificada para prioridad sobre lagunas.");
                 break;
             }
         }
         
         // 3. Límite máximo de repeticiones (3 consecutivas)
         error_log("[DEBUG] [Regla 3] Evaluando historial de reprobaciones consecutivas...");
-        $reprobacionesConsecutivas = 0;
+        // Regla B.3: 3 Reprobaciones Consecutivas
         $maxConsecutivas = 0;
-        $ultimaReprobacionAnio = null;
+        $actualConsecutivas = 0;
         
         foreach ($notas as $nota) {
             $anio = (int)($nota['ano'] ?? 0);
-            $condicion = strtoupper($nota['condicion'] ?? '');
+            $condicion = NormalizationHelper::condicion($nota['condicion'] ?? '');
             $esReprobado = ($condicion === 'REPROBADO');
             
             if ($esReprobado) {
-                $reprobacionesConsecutivas++;
-                $ultimaReprobacionAnio = $anio;
-                if ($reprobacionesConsecutivas > $maxConsecutivas) {
-                    $maxConsecutivas = $reprobacionesConsecutivas;
-                }
-                error_log("[DEBUG] -> Año " . $anio . ": REPROBADO. Contador: " . $reprobacionesConsecutivas);
+                $actualConsecutivas++;
+                $maxConsecutivas = max($maxConsecutivas, $actualConsecutivas);
+                error_log("[DEBUG] [Regla B.3] -> Año " . $anio . ": REPROBADO. Contador: " . $actualConsecutivas);
             } else {
-                $reprobacionesConsecutivas = 0;
+                $actualConsecutivas = 0;
             }
         }
         
@@ -179,29 +175,32 @@ class PostulacionController
             exit;
         }
 
-        // Si no tiene 3 consecutivas, la antigüedad permite inscripción inmediata
+        // Regla B.4: Continuidad Anual ("Laguna")
         if ($tieneAntigüedad) {
-            error_log("[DEBUG] >>> APROBADO: Prioridad otorgada por condición 'ANTIGÜEDAD'. Saltando validaciones de laguna.");
+            error_log("[DEBUG] [Regla B.4] SALTANDO REGLA DE LAGUNA: El funcionario cuenta con Antigüedad.");
             $this->mostrarFormulario($funcionario);
             exit;
         }
-        
-        // 4. Validación de continuidad anual tras reprobación
-        error_log("[DEBUG] [Regla 4] Verificando continuidad tras reprobación...");
-        $tieneAlgunaReprobacion = ($ultimaReprobacionAnio !== null);
-        
-        if (!$tieneAlgunaReprobacion) {
-            error_log("[DEBUG] >>> APROBADO: No registra reprobaciones en el grado actual.");
+
+        $ultimaReprobacionAnio = 0;
+        foreach ($notas as $nota) {
+            if (NormalizationHelper::condicion($nota['condicion']) === 'REPROBADO') {
+                $ultimaReprobacionAnio = max($ultimaReprobacionAnio, (int)$nota['ano']);
+            }
+        }
+
+        if ($ultimaReprobacionAnio === 0) {
+            error_log("[DEBUG] [Regla B.4] Sin reprobaciones en el historial. APROBADO.");
             $this->mostrarFormulario($funcionario);
             exit;
         } else {
-            $anioProceso = (int)date('Y'); // 2026
+            $anioProceso = (int)date('Y'); 
             if ($anioProceso === ($ultimaReprobacionAnio + 1)) {
-                error_log("[DEBUG] >>> APROBADO: Continuidad validada (postula al año siguiente de reprobar).");
+                error_log("[DEBUG] [Regla B.4] Continuidad validada (postula al año siguiente de reprobar).");
                 $this->mostrarFormulario($funcionario);
                 exit;
             } else if ($anioProceso > ($ultimaReprobacionAnio + 1)) {
-                error_log("[DEBUG] !!! RECHAZO: Laguna detectada tras reprobación en " . $ultimaReprobacionAnio);
+                error_log("[DEBUG] [Regla B.4] !!! RECHAZO: Laguna detectada tras reprobación en " . $ultimaReprobacionAnio);
                 $this->rechazar($funcionario, "RECHAZO: Laguna detectada (No postuló el año consecutivo a su última reprobación).");
                 exit;
             }

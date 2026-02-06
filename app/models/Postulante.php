@@ -43,11 +43,11 @@ class Postulante
     public function getNotasByGrado($codigo, $grado)
     {
         // Importar helper si no está cargado (por seguridad en el modelo)
-        if (!class_exists('GradeHelper')) {
-            require_once 'app/helpers/GradeHelper.php';
+        if (!class_exists('NormalizationHelper')) {
+            require_once 'app/helpers/NormalizationHelper.php';
         }
         
-        $gradoNormalizado = GradeHelper::transformar($grado);
+        $gradoNormalizado = NormalizationHelper::grado($grado);
         
         // Solo las notas del grado actual son válidas según nueva normativa
         $query = "SELECT * FROM " . $this->table_notas . " 

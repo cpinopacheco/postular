@@ -36,8 +36,8 @@
                                     <span class="readonly-value"><?= htmlspecialchars($funcionario['COD_FUN'] ?? '') ?></span>
                                 </div>
                                 <div class="readonly-field-group">
-                                    <span class="readonly-label">Grado Actual</span>
-                                    <span class="readonly-value"><?= htmlspecialchars($funcionario['GRADO'] ?? '') ?></span>
+                                    <span class="readonly-label">Grado</span>
+                                    <span class="readonly-value"><?= htmlspecialchars($funcionario['GRADO_MOSTRAR'] ?? '') ?></span>
                                 </div>
                             </div>
 

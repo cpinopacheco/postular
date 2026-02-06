@@ -225,6 +225,8 @@ class PostulacionController
 
     private function mostrarFormulario($funcionario)
     {
+        // Normalizar el grado antes de mostrarlo en la vista
+        $funcionario['GRADO_MOSTRAR'] = NormalizationHelper::grado($funcionario['GRADO'] ?? '');
         require 'app/views/postular.php';
     }
 
@@ -304,7 +306,11 @@ class PostulacionController
             $stmt->bindParam(':comisaria', $postulante['COMISARIA']);
             $stmt->bindParam(':dotacion', $postulante['DOTACION']);
             $stmt->bindParam(':fech_asc', $postulante['FECH_ASC']);
-            $stmt->bindParam(':grado', $postulante['GRADO']);
+            
+            // Guardar el grado normalizado para consistencia en la BD de inscritos
+            $gradoInscrito = NormalizationHelper::grado($postulante['GRADO'] ?? '');
+            $stmt->bindParam(':grado', $gradoInscrito);
+            
             $stmt->bindParam(':escalafon', $escalafon);
             $stmt->bindParam(':fech_insc', $fechaInsc);
             $stmt->bindParam(':sexo', $postulante['GENERO']); // Repetido?

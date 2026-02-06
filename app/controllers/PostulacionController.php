@@ -2,6 +2,7 @@
 
 require_once 'app/models/Postulante.php';
 require_once 'app/models/Proceso.php';
+require_once 'app/helpers/GradeHelper.php';
 require_once 'config/db.php';
 
 class PostulacionController
@@ -77,14 +78,16 @@ class PostulacionController
         // LÓGICA DE VALIDACIÓN COMBINADA (Rama A: Sin Notas + Rama B: Logica Estricta Anterior)
         error_log("[DEBUG] >>> INICIO VALIDACIÓN para Funcionario: " . $codigo);
         
-        // 1. Obtención del grado actual
-        $gradoActual = $funcionario['GRADO'] ?? '';
+        // 1. Obtención y Normalización del grado actual
+        $gradoOriginal = $funcionario['GRADO'] ?? '';
+        $gradoActual = GradeHelper::transformar($gradoOriginal);
+        
         if (empty($gradoActual)) {
             error_log("[DEBUG] ERROR: Grado no determinado.");
             $this->rechazar($funcionario, "ERROR: No se pudo determinar el grado actual del funcionario.");
             exit;
         }
-        error_log("[DEBUG] [Paso 1] Grado actual en POSTULANTES: '" . $gradoActual . "'");
+        error_log("[DEBUG] [Paso 1] Grado detectado: '" . $gradoOriginal . "' -> Normalizado: '" . $gradoActual . "'");
         
         // 2. Selección de notas del grado actual
         $notas = $this->postulanteModel->getNotasByGrado($codigo, $gradoActual);

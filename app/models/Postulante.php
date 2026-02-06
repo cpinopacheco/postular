@@ -42,6 +42,13 @@ class Postulante
      */
     public function getNotasByGrado($codigo, $grado)
     {
+        // Importar helper si no está cargado (por seguridad en el modelo)
+        if (!class_exists('GradeHelper')) {
+            require_once 'app/helpers/GradeHelper.php';
+        }
+        
+        $gradoNormalizado = GradeHelper::transformar($grado);
+        
         // Solo las notas del grado actual son válidas según nueva normativa
         $query = "SELECT * FROM " . $this->table_notas . " 
                   WHERE codigo = :codigo 
@@ -50,7 +57,7 @@ class Postulante
         
         $stmt = $this->conn->prepare($query);
         $stmt->bindParam(':codigo', $codigo);
-        $stmt->bindParam(':grado', $grado);
+        $stmt->bindParam(':grado', $gradoNormalizado);
         $stmt->execute();
         
         return $stmt->fetchAll(PDO::FETCH_ASSOC);

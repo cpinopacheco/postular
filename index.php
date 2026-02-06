@@ -16,10 +16,6 @@ switch ($action) {
     case 'inscribir':
         $controller->inscribir();
         break;
-    case 'certificado':
-        // TODO: Implementar método para ver certificado por URL si es necesario
-        echo "Vista de certificado pendiente implementation directa";
-        break;
     default:
         $controller->index();
         break;

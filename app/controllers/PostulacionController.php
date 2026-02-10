@@ -27,6 +27,8 @@ class PostulacionController
             return;
         }
 
+        $error = $_SESSION['error'] ?? null;
+        unset($_SESSION['error']); // Limpiar error tras leerlo
         require 'app/views/inicio.php';
     }
 
@@ -50,8 +52,12 @@ class PostulacionController
         // Regla 0.B: ¿Existe en BD? (Validación de Existencia)
         $funcionario = $this->postulanteModel->findByCodigo($codigo);
         if (!$funcionario) {
-            error_log("[DEBUG] ERROR: Funcionario no encontrado.");
-            $this->rechazar(null, "ERROR: El código ingresado no existe en la base de datos de habilitados.");
+            error_log("[DEBUG] ERROR: Funcionario no encontrado ($codigo).");
+            $this->rechazar(
+                null, 
+                "El código ingresado no se encuentra habilitado para este proceso. Verifique sus datos e intente nuevamente.",
+                "ERROR: El código no existe en la tabla de postulantes habilitados."
+            );
             exit;
         }
 
@@ -82,7 +88,11 @@ class PostulacionController
         
         if (empty($gradoActual)) {
             error_log("[DEBUG] ERROR: Grado no determinado.");
-            $this->rechazar($funcionario, "ERROR: No se pudo determinar el grado actual del funcionario.");
+            $this->rechazar(
+                $funcionario, 
+                "No se pudo determinar su grado actual. Por favor, comuníquese con la Sección de Perfeccionamiento.",
+                "ERROR: Fallo en normalización o grado nulo en la tabla de postulantes."
+            );
             exit;
         }
         error_log("[DEBUG] [Paso 1] Grado detectado: '" . $gradoOriginal . "' -> Normalizado: '" . $gradoActual . "'");
@@ -110,7 +120,11 @@ class PostulacionController
 
             if ($diferencia->y > 2) {
                 error_log("[DEBUG] !!! RECHAZO: Han pasado más de 2 años desde su ascenso sin registros de notas.");
-                $this->rechazar($funcionario, "RECHAZO: Más de 2 años desde el ascenso sin registros de notas en grado actual.");
+                $this->rechazar(
+                    $funcionario, 
+                    "Su fecha de ascenso supera el límite de 2 años permitidos para postular sin antecedentes de notas.",
+                    "RECHAZO: Más de 2 años desde el ascenso ($fechaAscensoStr) sin registros de notas en grado actual."
+                );
                 exit;
             } else {
                 error_log("[DEBUG] >>> APROBADO: Menos de 2 años desde el ascenso.");
@@ -133,8 +147,12 @@ class PostulacionController
         }
 
         if ($tieneMerito) {
-            error_log("[DEBUG] !!! RECHAZO: El funcionario ya aprobó/cursó con MÉRITO. No es necesario inscribirse.");
-            $this->rechazar($funcionario, "RECHAZO: El funcionario ya posee MÉRITO en el grado actual.");
+            error_log("[DEBUG] !!! RECHAZO: El funcionario ya aprobó/cursó con MÉRITO.");
+            $this->rechazar(
+                $funcionario, 
+                "Usted ya cuenta con la condición de MÉRITO en su grado actual, habiendo cumplido el objetivo de este proceso.",
+                "RECHAZO: El funcionario ya posee MÉRITO en el grado actual (Validación Regla B.1)."
+            );
             exit;
         }
 
@@ -171,7 +189,11 @@ class PostulacionController
         
         if ($maxConsecutivas >= 3) {
             error_log("[DEBUG] !!! RECHAZO CRÍTICO: 3 o más reprobaciones consecutivas.");
-            $this->rechazar($funcionario, "RECHAZO: Límite alcanzado de 3 reprobaciones consecutivas en grado actual.");
+            $this->rechazar(
+                $funcionario, 
+                "Usted ha alcanzado el límite máximo de 3 reprobaciones consecutivas en su grado actual. No es posible postular.",
+                "RECHAZO: Límite de 3 reprobaciones consecutivas detectado (Regla B.3)."
+            );
             exit;
         }
 
@@ -201,7 +223,11 @@ class PostulacionController
                 exit;
             } else if ($anioProceso > ($ultimaReprobacionAnio + 1)) {
                 error_log("[DEBUG] [Regla B.4] !!! RECHAZO: Laguna detectada tras reprobación en " . $ultimaReprobacionAnio);
-                $this->rechazar($funcionario, "RECHAZO: Laguna detectada (No postuló el año consecutivo a su última reprobación).");
+                $this->rechazar(
+                    $funcionario, 
+                    "Su historial registra un año sin postulación. Debía postular de manera consecutiva tras su última reprobación.",
+                    "RECHAZO: Laguna detectada. No postuló el año consecutivo a su última reprobación de $ultimaReprobacionAnio."
+                );
                 exit;
             }
         }
@@ -230,21 +256,26 @@ class PostulacionController
         require 'app/views/postular.php';
     }
 
-    private function rechazar($funcionario, $razon)
+    private function rechazar($funcionario, $userMessage, $techReason)
     {
         $codigo = $funcionario['COD_FUN'] ?? 'DESCONOCIDO';
         $nombre = $funcionario['NOM_COMPL'] ?? 'DESCONOCIDO';
         $grado = $funcionario['GRADO'] ?? 'N/A';
 
+        // Guardamos el motivo TÉCNICO en la base de datos (Exclusiones)
         $this->postulanteModel->logExclusion(
             $codigo, 
             $nombre, 
             $grado, 
-            $razon
+            $techReason
         );
-        $mensaje = $razon;
-        $tipo = "error";
-        require 'app/views/mensaje.php';
+        
+        // Guardamos el mensaje amigable para el USUARIO en la sesión
+        $_SESSION['error'] = $userMessage;
+        
+        // Redirigir de vuelta al inicio
+        header('Location: /index.php');
+        exit;
     }
     
     public function inscribir()
@@ -326,7 +357,11 @@ class PostulacionController
             require 'app/views/certificado.php';
             
         } catch (Exception $e) {
-            $mensaje = "Error al inscribir: " . $e->getMessage();
+            // Log técnico para el desarrollador
+            error_log(" [CRÍTICO] Error al inscribir funcionario: " . $e->getMessage());
+            error_log($e->getTraceAsString());
+
+            $mensaje = "Lo sentimos, ha ocurrido un problema técnico al procesar su inscripción. Por favor, intente más tarde o contacte a soporte.";
             $tipo = "error";
             require 'app/views/mensaje.php';
         }

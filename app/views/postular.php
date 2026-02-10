@@ -89,8 +89,11 @@
                         </div>
 
                         <div class="button-group">
-                            <button type="submit" class="submit-btn" id="btn-postular" disabled>Postular</button>
-                            <button type="button" class="cancel-btn">Cancelar</button>
+                            <button type="submit" class="submit-btn" id="btn-postular" disabled>
+                                <span class="spinner"></span>
+                                <span class="btn-text">Postular</span>
+                            </button>
+                            <a href="/" class="cancel-btn" style="text-decoration: none; text-align: center;">Cancelar</a>
                         </div>
                     </form>
 
@@ -108,9 +111,17 @@
         document.addEventListener('DOMContentLoaded', function() {
             const checkbox = document.getElementById('option-yes');
             const submitBtn = document.getElementById('btn-postular');
+            const form = document.querySelector('form');
 
+            // 1. Habilitar botón según checkbox
             checkbox.addEventListener('change', function() {
                 submitBtn.disabled = !this.checked;
+            });
+
+            // 2. Manejo de estado de carga al enviar
+            form.addEventListener('submit', function() {
+                submitBtn.classList.add('loading');
+                submitBtn.disabled = true;
             });
         });
     </script>

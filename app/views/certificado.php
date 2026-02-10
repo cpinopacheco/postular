@@ -37,11 +37,16 @@
                         </div>
                         <div class="data-row">
                             <span class="data-label">Fecha de inscripción:</span>
-                            <span class="data-value"><?= htmlspecialchars($datosInscripcion['FECH_INSC'] ?? date('Y-m-d')) ?></span>
+                            <span class="data-value">
+                                <?php 
+                                    $fecha = $datosInscripcion['FECH_INSC'] ?? date('Y-m-d');
+                                    echo date('d-m-Y', strtotime($fecha));
+                                ?>
+                            </span>
                         </div>
                         <div class="data-row">
                             <span class="data-label">Número de registro:</span>
-                            <span class="data-value"><?= htmlspecialchars($datosInscripcion['ID_INSC'] ?? '') ?></span>
+                            <span class="data-value"><?= htmlspecialchars($datosInscripcion['ID_INSC'] ?? $datosInscripcion['id_insc'] ?? 'N/A') ?></span>
                         </div>
                     </div>
                 </main>

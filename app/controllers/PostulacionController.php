@@ -307,17 +307,23 @@ class PostulacionController
         // Campos postulantes que mapean: COD_FUN -> CODIGO, etc.
         
         try {
+            // 1. Calcular el siguiente ID correlativo de forma manual para evitar desajustes de secuencia
+            $stmtId = $this->db->query('SELECT COALESCE(MAX("ID_INSC"), 0) + 1 as next_id FROM inscritos');
+            $nextId = $stmtId->fetch(PDO::FETCH_ASSOC)['next_id'];
+
+            // 2. Preparar inserción (grado_curs debe ser igual a grado, SEXO siempre NULL)
             $query = "INSERT INTO inscritos (
-                \"CODIGO\", \"NOM_COMPL\", \"GENERO\", \"ESTADO\", \"ZONA\", \"PREFECTURA\", 
-                \"COMISARIA\", \"DOTACION\", \"FECHA_ASC\", \"GRADO\", \"ESCALAFN\", 
+                \"ID_INSC\", \"CODIGO\", \"NOM_COMPL\", \"GENERO\", \"ESTADO\", \"ZONA\", \"PREFECTURA\", 
+                \"COMISARIA\", \"DOTACION\", \"FECHA_ASC\", \"GRADO\", \"GRADO_CURS\", \"ESCALAFN\", 
                 \"FECH_INSC\", \"SEXO\", \"EMAIL\", \"TELEFONO\", \"CORREO_PER\"
             ) VALUES (
-                :codigo, :nom_compl, :genero, :estado, :zona, :prefectura,
-                :comisaria, :dotacion, :fech_asc, :grado, :escalafon,
+                :id_insc, :codigo, :nom_compl, :genero, :estado, :zona, :prefectura,
+                :comisaria, :dotacion, :fech_asc, :grado, :grado_curs, :escalafon,
                 :fech_insc, :sexo, :email, :telefono, :correo_per
             )";
             
             $stmt = $this->db->prepare($query);
+            $stmt->bindParam(':id_insc', $nextId);
             
             $fechaInsc = date('Y-m-d H:i:s');
             $escalafon = $postulante['ESCALAF'] ?? ''; 
@@ -341,10 +347,15 @@ class PostulacionController
             // Guardar el grado normalizado para consistencia en la BD de inscritos
             $gradoInscrito = NormalizationHelper::grado($postulante['GRADO'] ?? '');
             $stmt->bindParam(':grado', $gradoInscrito);
+            $stmt->bindParam(':grado_curs', $gradoInscrito);
             
             $stmt->bindParam(':escalafon', $escalafon);
             $stmt->bindParam(':fech_insc', $fechaInsc);
-            $stmt->bindParam(':sexo', $postulante['GENERO']); // Repetido?
+            
+            // Forzar SEXO a NULL según requerimiento
+            $nullValue = null;
+            $stmt->bindParam(':sexo', $nullValue, PDO::PARAM_NULL);
+            
             $stmt->bindParam(':email', $emailCorp);
             $stmt->bindParam(':telefono', $telefono);
             $stmt->bindParam(':correo_per', $emailPers);

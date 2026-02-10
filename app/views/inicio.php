@@ -39,7 +39,7 @@
                             </div>
                         </div>
                         <button type="submit" class="submit-btn">
-                            Ingresar al Sistema
+                            Ingresar
                         </button>
                     </form>
                 </section>

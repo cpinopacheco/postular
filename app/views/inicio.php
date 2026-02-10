@@ -38,8 +38,9 @@
                                 </div>
                             </div>
                         </div>
-                        <button type="submit" class="submit-btn">
-                            Ingresar
+                        <button type="submit" class="submit-btn" id="login-btn">
+                            <span class="spinner"></span>
+                            <span class="btn-text">Ingresar</span>
                         </button>
                     </form>
                 </section>
@@ -66,6 +67,25 @@
             </footer>
         </div>
     </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const loginForm = document.querySelector('.login-form');
+            const loginBtn = document.getElementById('login-btn');
+            const codigoInput = document.getElementById('codigo');
+
+            // 1. Auto-foco inteligente
+            if (codigoInput) {
+                codigoInput.focus();
+            }
+
+            // 2. Manejo del estado de carga (Loading State)
+            loginForm.addEventListener('submit', function() {
+                loginBtn.classList.add('loading');
+                loginBtn.disabled = true;
+            });
+        });
+    </script>
 </body>
 
 </html>

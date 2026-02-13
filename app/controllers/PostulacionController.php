@@ -39,9 +39,9 @@ class PostulacionController
             exit;
         }
 
-        $codigoNum = $_POST['codigo_num'] ?? '';
-        $codigoDv = strtoupper($_POST['codigo_dv'] ?? '');
-        $codigo = $codigoNum . $codigoDv; // Asumiendo formato concatenado sin guión
+        $rawCodigo = $_POST['codigo'] ?? '';
+        // Normalización: Quitar guiones, espacios y pasar a mayúsculas
+        $codigo = strtoupper(preg_replace('/[^a-zA-Z0-9]/', '', $rawCodigo)); 
         
         // Regla 0.A: ¿Proceso abierto?
         if (!$this->procesoModel->isAbierto()) {

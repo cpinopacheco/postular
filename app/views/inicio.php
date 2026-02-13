@@ -20,6 +20,7 @@
             <main class="main-content">
                 <section class="login-section">
                     <h3>Bienvenido</h3>
+                    <p style="text-align: center; color: #666; margin-bottom: 0.75rem; margin-top: 0.5rem; font-size: 1rem; font-weight: 500;">Ingrese su código de funcionario:</p>
                     
                     <?php if (isset($error)): ?>
                         <div class="alert-error">
@@ -30,19 +31,9 @@
 
                     <form class="login-form" action="/index.php?action=validar" method="POST">
                         <div class="form-group">
-                            <label for="codigo">Código de Funcionario</label>
-                            
                             <div class="login-input-container">
                                 <div class="floating-input-group" style="flex: 1;">
-                                    <input type="text" id="codigo" name="codigo_num" placeholder=" " required maxlength="6" pattern="\d{6}" class="floating-input" oninput="this.value = this.value.replace(/[^0-9]/g, '');">
-                                    <label for="codigo" class="floating-label">Número</label>
-                                </div>
-                                
-                                <span class="separator">-</span>
-                                
-                                <div class="floating-input-group" style="width: 80px;">
-                                    <input type="text" id="verificador" name="codigo_dv" placeholder=" " required maxlength="1" pattern="[a-zA-Z0-9]" class="floating-input" style="text-align: center; text-transform: uppercase;" oninput="this.value = this.value.toUpperCase().replace(/[^A-Z0-9]/g, '');">
-                                    <label for="verificador" class="floating-label" style="left: 50%; transform: translateX(-50%);">DV</label>
+                                    <input type="text" id="codigo" name="codigo" placeholder="EJ: 123456A" required maxlength="7" pattern="[0-9]{6}[A-Z]" class="floating-input" style="text-transform: uppercase; padding: 1rem;">
                                 </div>
                             </div>
                         </div>
@@ -85,9 +76,31 @@
             // 1. Auto-foco inteligente
             if (codigoInput) {
                 codigoInput.focus();
+
+                // 2. Validación estricta: 6 números + 1 letra
+                codigoInput.addEventListener('input', function(e) {
+                    let value = this.value.toUpperCase().replace(/[^0-9A-Z]/g, '');
+                    let validatedValue = '';
+                    
+                    for (let i = 0; i < value.length; i++) {
+                        if (i < 6) {
+                            // Primeros 6 deben ser números
+                            if (/[0-9]/.test(value[i])) {
+                                validatedValue += value[i];
+                            }
+                        } else if (i === 6) {
+                            // El séptimo debe ser letra
+                            if (/[A-Z]/.test(value[i])) {
+                                validatedValue += value[i];
+                            }
+                        }
+                    }
+                    
+                    this.value = validatedValue;
+                });
             }
 
-            // 2. Manejo del estado de carga (Loading State)
+            // 3. Manejo del estado de carga (Loading State)
             loginForm.addEventListener('submit', function() {
                 loginBtn.classList.add('loading');
                 loginBtn.disabled = true;

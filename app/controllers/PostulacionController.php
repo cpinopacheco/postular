@@ -61,6 +61,18 @@ class PostulacionController
             exit;
         }
 
+        // --- NUEVA REGLA: Validación de Grado Habilitado ---
+        $gradoNormalizado = NormalizationHelper::grado($funcionario['GRADO'] ?? '');
+        if (!$this->procesoModel->isGradoHabilitado($gradoNormalizado)) {
+            error_log("[DEBUG] RECHAZO: Grado '" . $gradoNormalizado . "' no habilitado para este proceso.");
+            $this->rechazar(
+                $funcionario,
+                "Su grado actual (" . $gradoNormalizado . ") no se encuentra habilitado para participar en este proceso de inscripción.",
+                "RECHAZO: El grado '" . $gradoNormalizado . "' no está en la lista de grados permitidos."
+            );
+            exit;
+        }
+
         // Regla 0.C: ¿Ya está inscrito?
         $inscrito = $this->postulanteModel->isInscrito($codigo);
         if ($inscrito) {

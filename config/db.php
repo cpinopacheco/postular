@@ -17,8 +17,17 @@ class Database
 
         $env = file(__DIR__ . '/../.env', FILE_IGNORE_NEW_LINES | FILE_SKIP_EMPTY_LINES);
         foreach ($env as $line) {
-            list($key, $value) = explode('=', $line, 2);
-            $_ENV[trim($key)] = trim($value);
+            $line = trim($line);
+            // Omitir comentarios
+            if (strpos($line, '#') === 0) {
+                continue;
+            }
+
+            // Validar formato de línea
+            if (strpos($line, '=') !== false) {
+                list($key, $value) = explode('=', $line, 2);
+                $_ENV[trim($key)] = trim($value);
+            }
         }
     }
 

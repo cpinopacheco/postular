@@ -8,27 +8,53 @@ class NormalizationHelper
     public static function grado($grado)
     {
         if (empty($grado)) return "";
-        $res = strtoupper(trim($grado));
+        
+        // 1. Normalización básica (mayúsculas, acentos, trim)
+        $res = self::condicion($grado);
 
-        if ($res === 'TENIENTE (I)' || $res === 'TENIENTE') return "TTE.(I)";
-        if (strpos($res, 'TTE. CORONEL SERV.') !== false) return "TTE. CORONEL SERV.";
-        if (strpos($res, 'CARAB. SERVICIOS') !== false) return "CARAB. SERVICIOS";
-        if (strpos($res, 'SUBOFICIAL') !== false) return "SUBOFICIAL";
+        // 2. Manejo de variantes de identidad (I) ANTES de quitar paréntesis genéricos
+        // Esto evita que "CAPITAN (I)" se convierta en "CAPITAN"
+        // Manejamos casos como "TTE.(I)", "TTE (I)", "TTE. (I)"
+        $res = preg_replace(['/(\.)?\s*\(I\)/', '/(\.)?\s*I$/'], ' I', $res);
 
-        if (strpos($res, 'SEC.') !== false) {
-            if (strpos($res, 'SGTO. 2DO.') !== false) return "SGTO. 2DO.  SEC.";
-            if (strpos($res, 'CABO 1RO.') !== false) return "CABO 1RO.   SEC.";
-            if (strpos($res, 'CABO 2DO.') !== false) return "CABO 2DO.   SEC.";
+        // 3. Limpieza de "ruido" genérico (lo que está entre paréntesis y puntos al final)
+        // Ejemplo: "CABO 2DO. (E.G.)" -> "CABO 2DO."
+        $res = preg_replace('/\s*\(.*\)/', '', $res);
+        $res = rtrim($res, '.');
+        $res = trim($res);
+
+        // 3. Mapeo Granular (Variantes con 'I', 'SEC' o 'SERVICIOS' son distintas)
+        
+        // Casos de "I" (Instrucción/Intendencia) - PRESERVAR DISTINCIÓN
+        if (strpos($res, 'TENIENTE I') !== false || strpos($res, 'TTE I') !== false) return "TTE. I";
+        if ($res === 'CAPITAN I') return "CAPITAN I";
+        if (strpos($res, 'TTE CRL I') !== false || strpos($res, 'TTE.CRL.I') !== false || strpos($res, 'TENIENTE CORONEL I') !== false) return "TTE. CORONEL I";
+
+        // Casos de SERVICIOS - PRESERVAR DISTINCIÓN
+        if (strpos($res, 'TTE CORONEL SERV') !== false || strpos($res, 'TENIENTE CORONEL SERV') !== false) return "TTE. CORONEL SERV.";
+        if (strpos($res, 'SGTO 2DO SERVICIOS') !== false) return "SGTO. 2DO. SERVICIOS";
+        if (strpos($res, 'CABO 2DO SERVICIOS') !== false) return "CABO 2DO. SERVICIOS";
+        if (strpos($res, 'CARAB SERVICIOS') !== false) return "CARAB. SERVICIOS";
+
+        // Casos de SECRETARIADO (SEC) - PRESERVAR DISTINCIÓN
+        if (strpos($res, 'SEC') !== false) {
+            if (strpos($res, 'SGTO 2DO') !== false) return "SGTO. 2DO. SEC.";
+            if (strpos($res, 'CABO 1RO') !== false) return "CABO 1RO. SEC.";
+            if (strpos($res, 'CABO 2DO') !== false || $res === '2DO SEC') return "CABO 2DO. SEC.";
         }
 
-        if (strpos($res, 'SGTO. 2DO') !== false) return "SGTO. 2DO.";
-        if (strpos($res, 'CABO 2DO') !== false) return "CABO 2DO.";
+        // 4. Mapeo de Grados Base
+        if (strpos($res, 'SUBOFICIAL') !== false) return "SUBOFICIAL";
+        if (strpos($res, 'SGTO 2DO') !== false) return "SGTO. 2DO.";
+        if (strpos($res, 'CABO 2DO') !== false || $res === '2DO') return "CABO 2DO.";
         if (strpos($res, 'CABO 1RO') !== false) return "CABO 1RO.";
         if (strpos($res, 'CARABINERO') !== false) return "CARABINERO";
         if (strpos($res, 'SUBOF') !== false) return "SUBOF.";
+        if (strpos($res, 'TENIENTE') !== false || strpos($res, 'TTE') !== false) return "TENIENTE";
+        if (strpos($res, 'CAPITAN') !== false) return "CAPITAN";
+        if (strpos($res, 'TENIENTE CORONEL') !== false || strpos($res, 'TTE CORONEL') !== false) return "TTE. CORONEL";
 
-        $res = preg_replace('/\s*\(.*\)/', '', $res);
-        return trim($res);
+        return $res;
     }
 
     /**

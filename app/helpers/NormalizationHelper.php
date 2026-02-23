@@ -79,8 +79,17 @@ class NormalizationHelper
         ];
         
         $res = strtr($res, $acentos);
+        $res = strtoupper($res);
+
+        // Corregir errores comunes de digitación (0 por O)
+        // Como las condiciones son texto, el número 0 suele ser un error por la letra O
+        $res = str_replace('0', 'O', $res);
+
+        // Limpiar ruidos (paréntesis, puntos finales)
+        $res = preg_replace('/\s*\(.*\)/', '', $res);
+        $res = rtrim($res, '.');
         
-        return strtoupper($res);
+        return trim($res);
     }
 
     /**

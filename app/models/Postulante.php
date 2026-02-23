@@ -47,20 +47,28 @@ class Postulante
             require_once 'app/helpers/NormalizationHelper.php';
         }
         
-        $gradoNormalizado = NormalizationHelper::grado($grado);
+        $gradoObjetivo = NormalizationHelper::grado($grado);
         
-        // Solo las notas del grado actual son válidas según nueva normativa
+        // Traemos todas las notas y filtramos en PHP para asegurar consistencia 100% con la normalización
         $query = "SELECT * FROM " . $this->table_notas . " 
                   WHERE codigo = :codigo 
-                  AND grado = :grado 
                   ORDER BY ano ASC";
         
         $stmt = $this->conn->prepare($query);
         $stmt->bindParam(':codigo', $codigo);
-        $stmt->bindParam(':grado', $gradoNormalizado);
         $stmt->execute();
         
-        return $stmt->fetchAll(PDO::FETCH_ASSOC);
+        $todasLasNotas = $stmt->fetchAll(PDO::FETCH_ASSOC);
+        $notasFiltradas = [];
+
+        foreach ($todasLasNotas as $nota) {
+            $gradoNota = NormalizationHelper::grado($nota['grado'] ?? '');
+            if ($gradoNota === $gradoObjetivo) {
+                $notasFiltradas[] = $nota;
+            }
+        }
+        
+        return $notasFiltradas;
     }
 
     /**

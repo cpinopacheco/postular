@@ -129,18 +129,27 @@ class PostulacionController
             $hoy = new DateTime();
             $diferencia = $hoy->diff($fechaAscenso);
             
-            error_log("[DEBUG] [Rama A.2] Tiempo desde ascenso (" . $fechaAscensoStr . "): " . $diferencia->y . " años.");
+            // Determinar límite según grado (Capitán: 3 años, Resto: 2 años)
+            $esCapitan = (strpos($gradoActual, 'CAPITAN') !== false);
+            $limiteAnios = $esCapitan ? 3 : 2;
 
-            if ($diferencia->y > 2) {
-                error_log("[DEBUG] !!! RECHAZO: Han pasado más de 2 años desde su ascenso sin registros de notas.");
+            error_log("[DEBUG] [Rama A.2] Tiempo desde ascenso (" . $fechaAscensoStr . "): " . $diferencia->y . " años, " . $diferencia->m . " meses, " . $diferencia->d . " días. Límite para $gradoActual: $limiteAnios años.");
+
+            // La regla es "más de X años", es decir, X años y un día o más.
+            // Si tiene exactamente X años, 0 meses y 0 días, ES el aniversario y todavía puede postular.
+            $haSuperadoLimite = ($diferencia->y > $limiteAnios) || ($diferencia->y == $limiteAnios && ($diferencia->m > 0 || $diferencia->d > 0));
+
+            if ($haSuperadoLimite) {
+                error_log("[DEBUG] !!! RECHAZO: Han pasado más de $limiteAnios años ($diferencia->y años, $diferencia->m meses, $diferencia->d días) desde su ascenso sin registros de notas.");
                 $this->rechazar(
                     $funcionario, 
-                    "Su fecha de ascenso supera el límite de 2 años permitidos para postular sin antecedentes de notas.",
-                    "RECHAZO: Más de 2 años desde el ascenso ($fechaAscensoStr) sin registros de notas en grado actual."
+                    "Su fecha de ascenso supera el límite de $limiteAnios años permitidos (tiene $diferencia->y años y " . ($diferencia->d + ($diferencia->m * 30)) . " días) para postular sin antecedentes de notas en su grado actual.",
+                    "RECHAZO: Más de $limiteAnios años desde el ascenso ($fechaAscensoStr) sin registros de notas.",
+                    $funcionario['COD_FUN']
                 );
                 exit;
             } else {
-                error_log("[DEBUG] >>> APROBADO: Menos de 2 años desde el ascenso.");
+                error_log("[DEBUG] >>> APROBADO: Se encuentra dentro del plazo de $limiteAnios años.");
                 $this->mostrarFormulario($funcionario);
                 exit;
             }

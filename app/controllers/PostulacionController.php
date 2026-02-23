@@ -159,51 +159,57 @@ class PostulacionController
         error_log("[DEBUG] [Rama B] Se encontraron " . count($notas) . " registro(s) de notas. Evaluando normativa...");
 
         // Regla B.1: Mérito (Prioridad MÁXIMA)
-        $tieneMerito = false;
-        foreach ($notas as $nota) {
-            if (NormalizationHelper::condicion($nota['condicion'] ?? '') === 'MERITO') {
-                $tieneMerito = true;
-                error_log("[DEBUG] [Regla 1] MÉRITO DETECTADO: El funcionario ya cuenta con mérito en su grado actual (" . ($nota['ano'] ?? 'N/A') . ").");
-                break;
-            }
-        }
-
-        if ($tieneMerito) {
+        if ($this->tieneCondicion($notas, 'MERITO')) {
             error_log("[DEBUG] !!! RECHAZO: El funcionario ya aprobó/cursó con MÉRITO.");
             $this->rechazar(
                 $funcionario, 
                 "Usted ya cuenta con la condición de MÉRITO en su grado actual, habiendo cumplido el objetivo de este proceso.",
-                "RECHAZO: El funcionario ya posee MÉRITO en el grado actual (Validación Regla B.1)."
+                "RECHAZO: El funcionario ya posee MÉRITO en el grado actual (Regla B.1)."
             );
             exit;
         }
 
-        // Regla B.2: Antigüedad (El "Comodín")
-        $tieneAntigüedad = false;
+        // Regla B.2: Antigüedad (Llave Maestra)
+        // Según requerimiento: Si tiene antigüedad, habilita la postulación ignorando lagunas y reprobaciones.
+        if ($this->tieneCondicion($notas, 'ANTIGUEDAD')) {
+            error_log("[DEBUG] [Regla B.2] ANTIGÜEDAD DETECTADA: Habilitando postulación (Bypass de Lagunas y Reprobaciones).");
+            $this->mostrarFormulario($funcionario);
+            exit;
+        }
+
+        // --- SI NO TIENE ANTIGÜEDAD, APLICAMOS REGLAS ESTRICTAS ---
+
+        // Regla B.3: Continuidad Anual ("Laguna")
+        $ultimaReprobacionAnio = 0;
         foreach ($notas as $nota) {
-            $condicionNota = NormalizationHelper::condicion($nota['condicion'] ?? '');
-            if ($condicionNota === 'ANTIGUEDAD') {
-                $tieneAntigüedad = true;
-                error_log("[DEBUG] [Regla B.2] ANTIGÜEDAD DETECTADA: Identificada para prioridad sobre lagunas.");
-                break;
+            if (NormalizationHelper::condicion($nota['condicion']) === 'REPROBADO') {
+                $ultimaReprobacionAnio = max($ultimaReprobacionAnio, (int)$nota['ano']);
             }
         }
-        
-        // 3. Límite máximo de repeticiones (3 consecutivas)
-        error_log("[DEBUG] [Regla 3] Evaluando historial de reprobaciones consecutivas...");
-        // Regla B.3: 3 Reprobaciones Consecutivas
+
+        if ($ultimaReprobacionAnio > 0) {
+            $anioProceso = (int)date('Y'); 
+            if ($anioProceso > ($ultimaReprobacionAnio + 1)) {
+                error_log("[DEBUG] [Regla B.3] !!! RECHAZO: Laguna detectada tras reprobación en " . $ultimaReprobacionAnio);
+                $this->rechazar(
+                    $funcionario, 
+                    "Su historial registra un año sin postulación. Debía postular de manera consecutiva tras su última reprobación.",
+                    "RECHAZO: Laguna detectada. No postuló el año consecutivo a su última reprobación de $ultimaReprobacionAnio."
+                );
+                exit;
+            }
+        }
+
+        // Regla B.4: 3 Reprobaciones Consecutivas
+        error_log("[DEBUG] [Regla B.4] Evaluando historial de reprobaciones consecutivas...");
         $maxConsecutivas = 0;
         $actualConsecutivas = 0;
         
         foreach ($notas as $nota) {
-            $anio = (int)($nota['ano'] ?? 0);
-            $condicion = NormalizationHelper::condicion($nota['condicion'] ?? '');
-            $esReprobado = ($condicion === 'REPROBADO');
-            
-            if ($esReprobado) {
+            if (NormalizationHelper::condicion($nota['condicion'] ?? '') === 'REPROBADO') {
                 $actualConsecutivas++;
                 $maxConsecutivas = max($maxConsecutivas, $actualConsecutivas);
-                error_log("[DEBUG] [Regla B.3] -> Año " . $anio . ": REPROBADO. Contador: " . $actualConsecutivas);
+                error_log("[DEBUG] [Regla B.4] -> Año " . ($nota['ano'] ?? 'S/A') . ": REPROBADO. Contador: " . $actualConsecutivas);
             } else {
                 $actualConsecutivas = 0;
             }
@@ -214,44 +220,9 @@ class PostulacionController
             $this->rechazar(
                 $funcionario, 
                 "Usted ha alcanzado el límite máximo de 3 reprobaciones consecutivas en su grado actual. No es posible postular.",
-                "RECHAZO: Límite de 3 reprobaciones consecutivas detectado (Regla B.3)."
+                "RECHAZO: Límite de 3 reprobaciones consecutivas detectado (Regla B.4)."
             );
             exit;
-        }
-
-        // Regla B.4: Continuidad Anual ("Laguna")
-        if ($tieneAntigüedad) {
-            error_log("[DEBUG] [Regla B.4] SALTANDO REGLA DE LAGUNA: El funcionario cuenta con Antigüedad.");
-            $this->mostrarFormulario($funcionario);
-            exit;
-        }
-
-        $ultimaReprobacionAnio = 0;
-        foreach ($notas as $nota) {
-            if (NormalizationHelper::condicion($nota['condicion']) === 'REPROBADO') {
-                $ultimaReprobacionAnio = max($ultimaReprobacionAnio, (int)$nota['ano']);
-            }
-        }
-
-        if ($ultimaReprobacionAnio === 0) {
-            error_log("[DEBUG] [Regla B.4] Sin reprobaciones en el historial. APROBADO.");
-            $this->mostrarFormulario($funcionario);
-            exit;
-        } else {
-            $anioProceso = (int)date('Y'); 
-            if ($anioProceso === ($ultimaReprobacionAnio + 1)) {
-                error_log("[DEBUG] [Regla B.4] Continuidad validada (postula al año siguiente de reprobar).");
-                $this->mostrarFormulario($funcionario);
-                exit;
-            } else if ($anioProceso > ($ultimaReprobacionAnio + 1)) {
-                error_log("[DEBUG] [Regla B.4] !!! RECHAZO: Laguna detectada tras reprobación en " . $ultimaReprobacionAnio);
-                $this->rechazar(
-                    $funcionario, 
-                    "Su historial registra un año sin postulación. Debía postular de manera consecutiva tras su última reprobación.",
-                    "RECHAZO: Laguna detectada. No postuló el año consecutivo a su última reprobación de $ultimaReprobacionAnio."
-                );
-                exit;
-            }
         }
         
         error_log("[DEBUG] >>> APROBADO: Flujo completado.");
@@ -276,6 +247,16 @@ class PostulacionController
         // Normalizar el grado antes de mostrarlo en la vista
         $funcionario['GRADO_MOSTRAR'] = NormalizationHelper::grado($funcionario['GRADO'] ?? '');
         require 'app/views/postular.php';
+    }
+
+    private function tieneCondicion($notas, $condicionBuscada)
+    {
+        foreach ($notas as $nota) {
+            if (NormalizationHelper::condicion($nota['condicion'] ?? '') === $condicionBuscada) {
+                return true;
+            }
+        }
+        return false;
     }
 
     private function rechazar($funcionario, $userMessage, $techReason, $overrideCodigo = null)

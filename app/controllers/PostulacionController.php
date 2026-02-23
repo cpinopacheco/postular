@@ -56,7 +56,8 @@ class PostulacionController
             $this->rechazar(
                 null, 
                 "El código ingresado no se encuentra habilitado para este proceso. Verifique sus datos e intente nuevamente.",
-                "ERROR: El código no existe en la tabla de postulantes habilitados."
+                "ERROR: El código '$codigo' no existe en la tabla de postulantes habilitados.",
+                $codigo
             );
             exit;
         }
@@ -268,10 +269,10 @@ class PostulacionController
         require 'app/views/postular.php';
     }
 
-    private function rechazar($funcionario, $userMessage, $techReason)
+    private function rechazar($funcionario, $userMessage, $techReason, $overrideCodigo = null)
     {
-        $codigo = $funcionario['COD_FUN'] ?? 'DESCONOCIDO';
-        $nombre = $funcionario['NOM_COMPL'] ?? 'DESCONOCIDO';
+        $codigo = $funcionario['COD_FUN'] ?? ($overrideCodigo ?? 'DESCONOCIDO');
+        $nombre = $funcionario['NOM_COMPL'] ?? 'USUARIO NO ENCONTRADO';
         $grado = $funcionario['GRADO'] ?? 'N/A';
 
         // Guardamos el motivo TÉCNICO en la base de datos (Exclusiones)

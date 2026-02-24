@@ -12,7 +12,9 @@
     <div class="container">
         <div class="card">
             <header class="header">
-                <img src="/public/images/cenpecar-logo.png" alt="Logo Institucional" class="logo">
+                <div class="logo-wrapper">
+                    <img src="/public/images/cenpecar-logo.png" alt="Logo Institucional" class="logo">
+                </div>
                 <h1>PROCESO DE INSCRIPCIÓN <?php echo date('Y'); ?></h1>
                 <h2>NIVELES DE PERFECCIONAMIENTO</h2>
             </header>

@@ -1,5 +1,66 @@
 @import url("common.css");
 
+/* --- Animated Logo Shine --- */
+.logo-wrapper {
+  position: relative;
+  display: inline-flex;
+  margin-bottom: 1.5rem;
+  z-index: 10;
+}
+
+.logo-wrapper .logo {
+  display: block;
+  margin-bottom: 0 !important;
+  filter: drop-shadow(0 5px 15px rgba(0,0,0,0.15));
+}
+
+.logo-wrapper::after {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  
+  /* Gradiente del brillo: barra diagonal blanca MUY sutil */
+  background: linear-gradient(
+    135deg,
+    rgba(255, 255, 255, 0) 40%,
+    rgba(255, 255, 255, 0.1) 50%,
+    rgba(255, 255, 255, 0) 60%
+  );
+  
+  /* Tamaño grande para que el brillo pueda "esconderse" */
+  background-size: 300% 300%;
+  background-repeat: no-repeat;
+  background-position: 150% 150%; /* Posición inicial: fuera de vista */
+  
+  /* Máscara de recorte fija: solo brilla sobre el escudo */
+  -webkit-mask-image: url("/public/images/cenpecar-logo.png");
+  mask-image: url("/public/images/cenpecar-logo.png");
+  -webkit-mask-size: contain;
+  mask-size: contain;
+  -webkit-mask-repeat: no-repeat;
+  mask-repeat: no-repeat;
+  
+  /* Animación: 5s total. 3s cruzando (60%) y 2s de espera */
+  animation: logo-shine 5s linear infinite;
+  pointer-events: none;
+  z-index: 1;
+}
+
+@keyframes logo-shine {
+  0% {
+    background-position: 150% 150%;
+  }
+  60% {
+    background-position: -50% -50%; /* 3 segundos exactos cruzando (60% de 5s) */
+  }
+  100% {
+    background-position: -50% -50%;
+  }
+}
+
 .main-content {
   padding: 0;
   display: grid;

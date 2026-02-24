@@ -76,21 +76,31 @@ class Postulante
      */
     public function logExclusion($codigo, $nombre, $grado, $razon)
     {
-        $query = "INSERT INTO " . $this->table_exclusiones . " 
-                  (fecha, codigo, nombre, grado, razon) 
-                  VALUES (:fecha, :codigo, :nombre, :grado, :razon)";
-        
-        $stmt = $this->conn->prepare($query);
-        
-        // Asumiendo formato de fecha timestamp o date según la BD
-        $fecha = date('Y-m-d H:i:s'); 
-        
-        $stmt->bindParam(':fecha', $fecha);
-        $stmt->bindParam(':codigo', $codigo);
-        $stmt->bindParam(':nombre', $nombre);
-        $stmt->bindParam(':grado', $grado);
-        $stmt->bindParam(':razon', $razon);
-        
-        return $stmt->execute();
+        try {
+            // 1. Calcular el siguiente ID correlativo para la tabla de exclusiones
+            $stmtId = $this->conn->query("SELECT COALESCE(MAX(\"ID_EXCLU\"), 0) + 1 as next_id FROM " . $this->table_exclusiones);
+            $nextId = $stmtId->fetch(PDO::FETCH_ASSOC)['next_id'];
+
+            // 2. Insertar con el ID calculado
+            $query = "INSERT INTO " . $this->table_exclusiones . " 
+                      (\"ID_EXCLU\", fecha, codigo, nombre, grado, razon) 
+                      VALUES (:id, :fecha, :codigo, :nombre, :grado, :razon)";
+            
+            $stmt = $this->conn->prepare($query);
+            
+            $fecha = date('Y-m-d H:i:s'); 
+            
+            $stmt->bindParam(':id', $nextId);
+            $stmt->bindParam(':fecha', $fecha);
+            $stmt->bindParam(':codigo', $codigo);
+            $stmt->bindParam(':nombre', $nombre);
+            $stmt->bindParam(':grado', $grado);
+            $stmt->bindParam(':razon', $razon);
+            
+            return $stmt->execute();
+        } catch (Exception $e) {
+            error_log("Error al loguear exclusión: " . $e->getMessage());
+            return false;
+        }
     }
 }

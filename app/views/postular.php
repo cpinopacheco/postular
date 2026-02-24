@@ -70,7 +70,7 @@
                                 <li>Para el personal de Nombramiento Supremo e Institucional, responder a las exigencias académicas dispuestas para los procesos académicos año <?php echo date('Y'); ?>.</li>
                                 <li>El correo electrónico proporcionado será utilizado para la difusión de información institucional.</li>
                             </ol>
-                            <p>Ante duda o consulta, llamar a los IP: 21480, 21491, 21494 o en su defecto escribir al correo <a href="mailto:seccion.perfeccionamiento@gmail.com">seccion.perfeccionamiento@gmail.com</a>, de este Centro Nacional de Perfeccionamiento y Capacitación.</p>
+                            <p>Ante duda o consulta, llamar a los IP: 21480, 21491, 21494, 21513, 27293</p>
                             <strong>Nota:</strong> El punto 3 debería actualizarse al año actual si corresponde.
                         </div>
                         <div class="radio-group modern-radio-group">

@@ -56,6 +56,8 @@
                             <div class="phone-badge">21480</div>
                             <div class="phone-badge">21491</div>
                             <div class="phone-badge">21494</div>
+                            <div class="phone-badge">21513</div>
+                            <div class="phone-badge">27293</div>
                         </div>
                     </div>
                 </section>

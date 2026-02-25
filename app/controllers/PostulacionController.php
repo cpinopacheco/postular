@@ -143,7 +143,7 @@ class PostulacionController
                 error_log("[DEBUG] !!! RECHAZO: Han pasado más de $limiteAnios años ($diferencia->y años, $diferencia->m meses, $diferencia->d días) desde su ascenso sin registros de notas.");
                 $this->rechazar(
                     $funcionario, 
-                    "Conforme al sistema educacional vigente: Su fecha de ascenso supera el límite de $limiteAnios años permitidos (tiene $diferencia->y años y " . ($diferencia->d + ($diferencia->m * 30)) . " días) para postular por primera vez.",
+                    "Conforme a la normativa educacional institucional vigente, se informa que ha excedido el plazo máximo de $limiteAnios años desde su último ascenso para cursar por primera vez el nivel de perfeccionamiento respectivo.",
                     "RECHAZO: Más de $limiteAnios años desde el ascenso ($fechaAscensoStr) sin registros de notas.",
                     $funcionario['COD_FUN']
                 );
@@ -193,7 +193,7 @@ class PostulacionController
                 error_log("[DEBUG] [Regla B.3] !!! RECHAZO: Laguna detectada tras reprobación en " . $ultimaReprobacionAnio);
                 $this->rechazar(
                     $funcionario, 
-                    "Conforme al sistema educacional vigente: Su historial registra un año sin postulación. Debía postular de manera consecutiva tras su última reprobación.",
+                    "Conforme a la normativa educacional vigente, se ha detectado una interrupción en su historial de postulaciones. El reglamento académico exige mantener la continuidad de manera ininterrumpida tras un evento de reprobación.",
                     "RECHAZO: Laguna detectada. No postuló el año consecutivo a su última reprobación de $ultimaReprobacionAnio."
                 );
                 exit;
@@ -219,7 +219,7 @@ class PostulacionController
             error_log("[DEBUG] !!! RECHAZO CRÍTICO: 3 o más reprobaciones consecutivas.");
             $this->rechazar(
                 $funcionario, 
-                "Conforme al sistema educacional vigente: Usted ha alcanzado el límite máximo de 3 reprobaciones consecutivas en su grado actual. No es posible postular.",
+                "Se le comunica que, conforme a la normativa académica vigente, no se encuentra habilitado para participar en el presente proceso tras haber completado tres eventos de reprobación consecutivos en el grado que ostenta.",
                 "RECHAZO: Límite de 3 reprobaciones consecutivas detectado (Regla B.4)."
             );
             exit;

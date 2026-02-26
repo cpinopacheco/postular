@@ -1,4 +1,5 @@
 <?php
+date_default_timezone_set('America/Santiago');
 
 function loadEnv($path = __DIR__ . '/../.env') {
     if (!file_exists($path)) {

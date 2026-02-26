@@ -67,6 +67,9 @@
                 <h3>SECCIÓN DE PERFECCIONAMIENTO</h3>
                 <p>CENTRO NACIONAL DE PERFECCIONAMIENTO Y CAPACITACIÓN</p>
                 <p>CARABINEROS DE CHILE</p>
+                <div style="margin-top: 1.5rem; opacity: 0.3; font-size: 0.7rem;">
+                    <a href="/index.php?action=admin_login" style="color: inherit; text-decoration: none;">Gestión</a>
+                </div>
             </footer>
         </div>
     </div>

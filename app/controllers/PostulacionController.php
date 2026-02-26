@@ -16,7 +16,7 @@ class PostulacionController
         $database = new Database();
         $this->db = $database->getConnection();
         $this->postulanteModel = new Postulante($this->db);
-        $this->procesoModel = new Proceso();
+        $this->procesoModel = new Proceso($this->db);
     }
 
     public function index()

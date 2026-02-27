@@ -38,7 +38,8 @@
             top: 0;
             left: 0;
             box-sizing: border-box;
-            z-index: 100;
+            z-index: 1000;
+            transition: transform 0.3s cubic-bezier(0.16, 1, 0.3, 1);
         }
 
         .sidebar-header {
@@ -60,6 +61,35 @@
         }
         .nav-link:hover, .nav-link.active { background: rgba(255, 255, 255, 0.1); color: white; }
         .nav-link.active { background: var(--admin-accent); color: #002d20; }
+
+        /* Mobile Menu Toggle */
+        .menu-toggle {
+            display: none;
+            background: var(--admin-sidebar);
+            color: white;
+            border: none;
+            padding: 0.75rem;
+            border-radius: 12px;
+            cursor: pointer;
+            margin-right: 1rem;
+            margin-bottom: 1rem;
+            
+            box-shadow: 0 4px 12px rgba(0, 45, 32, 0.15);
+        }
+
+        .sidebar-overlay {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0, 0, 0, 0.5);
+            backdrop-filter: blur(4px);
+            z-index: 999;
+        }
+        
+        .sidebar-overlay.active { display: block; }
 
         .logout-btn {
             margin-top: auto;
@@ -89,6 +119,7 @@
             overflow-y: auto;
             box-sizing: border-box;
             background: var(--admin-bg);
+            transition: margin-left 0.3s cubic-bezier(0.16, 1, 0.3, 1);
         }
 
         .header-top {
@@ -109,7 +140,7 @@
         .config-card {
             background: white;
             border-radius: 24px;
-            padding: 2.5rem;
+            padding: 1.5rem;
             box-shadow: var(--card-shadow);
             border: 1px solid rgba(0, 0, 0, 0.05);
             animation: slideUp 0.6s cubic-bezier(0.16, 1, 0.3, 1);
@@ -149,6 +180,21 @@
             font-size: 0.875rem;
             color: #64748b;
             margin-top: 0.25rem;
+        }
+
+        .selection-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            gap: 1rem;
+        }
+
+        .select-all-btn {
+            width: auto;
+            padding: 0.5rem 1rem;
+            font-size: 0.75rem;
+            cursor: pointer;
+            white-space: nowrap;
         }
 
         .grid-inputs {
@@ -191,7 +237,7 @@
             gap: 1rem;
             margin-top: 1rem;
             background: #f8fafc;
-            padding: 1.5rem;
+            padding: 1rem;
             border-radius: 16px;
             border: 1.5px solid #e2e8f0;
         }
@@ -272,10 +318,72 @@
             display: flex;
             gap: 0.5rem;
         }
+        /* Responsive */
+        @media (max-width: 1024px) {
+            .sidebar {
+                transform: translateX(-100%);
+            }
+            .sidebar.active {
+                transform: translateX(0);
+            }
+            .main-content {
+                margin-left: 0 !important;
+                width: 100% !important;
+                padding: 1rem;
+            }
+            .menu-toggle {
+                display: flex;
+            }
+            .config-card {
+                padding: 1.5rem;
+            }
+            .sidebar-overlay.active {
+                opacity: 1;
+                visibility: visible;
+            }
+        }
+
+        @media (max-width: 640px) {
+            .header-top {
+                flex-direction: column;
+                align-items: flex-start;
+                gap: 1rem;
+            }
+            .welcome-text h1 {
+                font-size: 1.5rem;
+            }
+            .grid-inputs {
+                grid-template-columns: 1fr;
+                gap: 1rem;
+            }
+            .grid-checkboxes > div {
+                padding: 1rem !important;
+            }
+            .selection-header {
+                flex-direction: column;
+                align-items: stretch;
+            }
+            .select-all-btn {
+                width: 100%;
+                margin-top: 1rem;
+                padding: 0.875rem;
+                font-size: 0.9375rem;
+            }
+            .grade-category-container {
+                padding: 1rem !important;
+            }
+            .save-btn {
+                width: 100%;
+                justify-content: center;
+                padding: 1rem;
+            }
+        }
     </style>
 </head>
-<body>
-    <aside class="sidebar">
+<body class="admin-body">
+    <div class="sidebar-overlay" id="sidebarOverlay"></div>
+
+    <aside class="sidebar" id="sidebar">
         <header class="sidebar-header">
             <img src="/public/images/cenpecar-logo.png" alt="Logo" class="sidebar-logo">
             <span class="sidebar-title">Admin Panel</span>
@@ -290,7 +398,12 @@
     <main class="main-content">
         <header class="header-top">
             <div class="welcome-text">
-                <h1>Configuración del Sistema</h1>
+                <h1>
+                    <button class="menu-toggle" id="menuToggle">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="18" x2="21" y2="18"/></svg>
+                    </button>
+                    Configuración del Sistema
+                </h1>
                 <p>Gestione los parámetros globales del proceso activo.</p>
             </div>
         </header>
@@ -323,14 +436,12 @@
                 </section>
 
                 <section class="form-section">
-                    <div class="section-header">
-                        <div style="display: flex; justify-content: space-between; align-items: flex-start;">
-                            <div>
-                                <h3>Grados Habilitados</h3>
-                                <p>Especifique qué grados jerárquicos se encuentran habilitados para el proceso de inscripción:</p>
-                            </div>
-                            <button type="button" onclick="toggleAllGrades()" class="admin-input" style="padding: 0.5rem 1rem; font-size: 0.75rem; cursor: pointer; width: auto;">Seleccionar Todo</button>
+                    <div class="section-header selection-header">
+                        <div>
+                            <h3>Grados Habilitados</h3>
+                            <p>Especifique qué grados jerárquicos se encuentran habilitados para el proceso de inscripción:</p>
                         </div>
+                        <button type="button" onclick="toggleAllGrades()" class="admin-input select-all-btn">Seleccionar Todo</button>
                     </div>
                     
                     <?php 
@@ -339,7 +450,7 @@
                     
                     <div class="grid-checkboxes" style="display: block;">
                         <?php foreach ($availableGrades as $categoria => $contenido): ?>
-                            <div style="margin-bottom: 2rem; background: rgba(0, 0, 0, 0.02); padding: 1.5rem; border-radius: 16px; border: 1px dashed #e2e8f0;">
+                            <div class="grade-category-container" style="margin-bottom: 2rem; background: rgba(0, 0, 0, 0.02); padding: 1.5rem; border-radius: 16px; border: 1px dashed #e2e8f0;">
                                 <h3 style="margin: 0 0 1.5rem 0; color: var(--admin-sidebar); font-size: 1.1rem; display: flex; align-items: center; gap: 0.5rem;">
                                     <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z"/></svg>
                                     <?= $categoria ?>
@@ -402,6 +513,28 @@
             checkboxes.forEach(cb => cb.checked = !allChecked);
             btn.textContent = allChecked ? "Seleccionar Todo" : "Deseleccionar Todo";
         }
+    </script>
+    <script>
+        const menuToggle = document.getElementById('menuToggle');
+        const sidebar = document.getElementById('sidebar');
+        const overlay = document.getElementById('sidebarOverlay');
+
+        function toggleMenu() {
+            sidebar.classList.toggle('active');
+            overlay.classList.toggle('active');
+            document.body.style.overflow = sidebar.classList.contains('active') ? 'hidden' : '';
+        }
+
+        menuToggle.addEventListener('click', toggleMenu);
+        overlay.addEventListener('click', toggleMenu);
+
+        sidebar.querySelectorAll('.nav-link').forEach(link => {
+            link.addEventListener('click', () => {
+                if (window.innerWidth <= 1024) {
+                    toggleMenu();
+                }
+            });
+        });
     </script>
 </body>
 </html>

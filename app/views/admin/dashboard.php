@@ -43,7 +43,8 @@
             top: 0;
             left: 0;
             box-sizing: border-box;
-            z-index: 100;
+            z-index: 1000;
+            transition: transform 0.3s cubic-bezier(0.16, 1, 0.3, 1);
         }
 
         .sidebar-header {
@@ -115,6 +116,35 @@
             color: #f44336;
         }
 
+        /* Mobile Menu Toggle */
+        .menu-toggle {
+            display: none;
+            background: var(--admin-sidebar);
+            color: white;
+            border: none;
+            padding: 0.75rem;
+            border-radius: 12px;
+            cursor: pointer;
+            margin-right: 1rem;
+            margin-bottom: 1rem;
+            
+            box-shadow: 0 4px 12px rgba(0, 45, 32, 0.15);
+        }
+
+        .sidebar-overlay {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0, 0, 0, 0.5);
+            backdrop-filter: blur(4px);
+            z-index: 999;
+        }
+        
+        .sidebar-overlay.active { display: block; }
+
         /* Main Content */
         .main-content {
             flex-grow: 1;
@@ -126,6 +156,7 @@
             overflow-y: auto;
             box-sizing: border-box;
             background: var(--admin-bg);
+            transition: margin-left 0.3s cubic-bezier(0.16, 1, 0.3, 1);
         }
 
         .header-top {
@@ -315,14 +346,100 @@
         }
 
         @media (max-width: 1024px) {
-            .layout-grid { grid-template-columns: 1fr; }
-            .sidebar { width: 80px; }
-            .sidebar-title, .nav-link span { display: none; }
+            .sidebar {
+                width: 280px; /* Full width for mobile sidebar */
+                position: fixed;
+                top: 0;
+                left: 0;
+                height: 100vh;
+                z-index: 1000;
+                transform: translateX(-100%);
+                transition: transform 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+                box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+            }
+            .sidebar.active {
+                transform: translateX(0);
+            }
+            .sidebar-title, .nav-link span {
+                display: block; /* Show text when sidebar is active */
+            }
+            .main-content {
+                margin-left: 0;
+                width: 100%;
+                padding: 1rem;
+            }
+            .menu-toggle {
+                display: flex; /* Show menu toggle button */
+            }
+            .layout-grid {
+                grid-template-columns: 1fr;
+            }
+            .sidebar-overlay {
+                position: fixed;
+                top: 0;
+                left: 0;
+                width: 100%;
+                height: 100%;
+                background: rgba(0, 0, 0, 0.5);
+                z-index: 999;
+                opacity: 0;
+                visibility: hidden;
+                transition: opacity 0.3s ease, visibility 0.3s ease;
+            }
+            .sidebar-overlay.active {
+                opacity: 1;
+                visibility: visible;
+            }
+        }
+
+        @media (max-width: 640px) {
+            .stats-grid {
+                grid-template-columns: 1fr;
+            }
+            .header-top {
+                flex-direction: column;
+                align-items: flex-start;
+                gap: 1.5rem;
+            }
+            .date-display {
+                text-align: left !important;
+            }
+            .welcome-text h1 {
+                font-size: 1.5rem;
+            }
+            .section-card {
+                padding: 1rem;
+            }
+            .stat-card {
+                padding: 1rem;
+            }
+            .stats-table {
+                display: table;
+                white-space: normal;
+            }
+            .stats-table th:nth-child(4), 
+            .stats-table td:nth-child(4) { 
+                display: none; 
+            }
+            .stats-table th, .stats-table td {
+                padding: 0.75rem 0.5rem;
+            }
+            .activity-content {
+                flex-grow: 1;
+                min-width: 0;
+            }
+            .activity-content p {
+                overflow-wrap: break-word;
+                word-break: break-word;
+                white-space: normal;
+            }
         }
     </style>
 </head>
-<body>
-    <aside class="sidebar">
+<body class="admin-body">
+    <div class="sidebar-overlay" id="sidebarOverlay"></div>
+
+    <aside class="sidebar" id="sidebar">
         <header class="sidebar-header">
             <img src="/public/images/cenpecar-logo.png" alt="Logo" class="sidebar-logo">
             <span class="sidebar-title">Admin Panel</span>
@@ -349,7 +466,12 @@
     <main class="main-content">
         <header class="header-top">
             <div class="welcome-text">
-                <h1>Panel Administrativo</h1>
+                <h1>
+                    <button class="menu-toggle" id="menuToggle">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="18" x2="21" y2="18"/></svg>
+                    </button>
+                    Panel Administrativo
+                </h1>
                 <p>Monitoreo en tiempo real del Proceso <?php echo date('Y'); ?></p>
             </div>
             <div class="date-display" style="text-align: right;">
@@ -460,5 +582,28 @@
             </section>
         </div>
     </main>
+    <script>
+        const menuToggle = document.getElementById('menuToggle');
+        const sidebar = document.getElementById('sidebar');
+        const overlay = document.getElementById('sidebarOverlay');
+
+        function toggleMenu() {
+            sidebar.classList.toggle('active');
+            overlay.classList.toggle('active');
+            document.body.style.overflow = sidebar.classList.contains('active') ? 'hidden' : '';
+        }
+
+        menuToggle.addEventListener('click', toggleMenu);
+        overlay.addEventListener('click', toggleMenu);
+
+        // Cerrar al hacer click en un enlace si estamos en móvil
+        sidebar.querySelectorAll('.nav-link').forEach(link => {
+            link.addEventListener('click', () => {
+                if (window.innerWidth <= 1024) {
+                    toggleMenu();
+                }
+            });
+        });
+    </script>
 </body>
 </html>
